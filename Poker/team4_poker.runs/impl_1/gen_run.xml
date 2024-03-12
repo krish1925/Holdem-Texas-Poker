@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRun Id="impl_1" LaunchPart="xc7a35tcpg236-1" LaunchTime="1710204086">
+  <File Type="BITSTR-BMM" Name="basys3_bd.bmm"/>
+  <File Type="OPT-METHODOLOGY-DRC" Name="basys3_methodology_drc_opted.rpt"/>
+  <File Type="INIT-TIMING" Name="basys3_timing_summary_init.rpt"/>
+  <File Type="ROUTE-PWR" Name="basys3_power_routed.rpt"/>
+  <File Type="PA-TCL" Name="basys3.tcl"/>
+  <File Type="OPT-TIMING" Name="basys3_timing_summary_opted.rpt"/>
+  <File Type="OPT-DCP" Name="basys3_opt.dcp"/>
+  <File Type="ROUTE-PWR-SUM" Name="basys3_power_summary_routed.pb"/>
+  <File Type="REPORTS-TCL" Name="basys3_reports.tcl"/>
+  <File Type="OPT-DRC" Name="basys3_drc_opted.rpt"/>
+  <File Type="OPT-HWDEF" Name="basys3.hwdef"/>
+  <File Type="PWROPT-DCP" Name="basys3_pwropt.dcp"/>
+  <File Type="PWROPT-DRC" Name="basys3_drc_pwropted.rpt"/>
+  <File Type="PWROPT-TIMING" Name="basys3_timing_summary_pwropted.rpt"/>
+  <File Type="PLACE-DCP" Name="basys3_placed.dcp"/>
+  <File Type="PLACE-IO" Name="basys3_io_placed.rpt"/>
+  <File Type="PLACE-CLK" Name="basys3_clock_utilization_placed.rpt"/>
+  <File Type="PLACE-UTIL" Name="basys3_utilization_placed.rpt"/>
+  <File Type="PLACE-UTIL-PB" Name="basys3_utilization_placed.pb"/>
+  <File Type="PLACE-CTRL" Name="basys3_control_sets_placed.rpt"/>
+  <File Type="PLACE-SIMILARITY" Name="basys3_incremental_reuse_placed.rpt"/>
+  <File Type="PLACE-PRE-SIMILARITY" Name="basys3_incremental_reuse_pre_placed.rpt"/>
+  <File Type="BG-BGN" Name="basys3.bgn"/>
+  <File Type="PLACE-TIMING" Name="basys3_timing_summary_placed.rpt"/>
+  <File Type="POSTPLACE-PWROPT-DCP" Name="basys3_postplace_pwropt.dcp"/>
+  <File Type="BG-BIN" Name="basys3.bin"/>
+  <File Type="POSTPLACE-PWROPT-TIMING" Name="basys3_timing_summary_postplace_pwropted.rpt"/>
+  <File Type="PHYSOPT-DCP" Name="basys3_physopt.dcp"/>
+  <File Type="PHYSOPT-DRC" Name="basys3_drc_physopted.rpt"/>
+  <File Type="BITSTR-MSK" Name="basys3.msk"/>
+  <File Type="PHYSOPT-TIMING" Name="basys3_timing_summary_physopted.rpt"/>
+  <File Type="ROUTE-ERROR-DCP" Name="basys3_routed_error.dcp"/>
+  <File Type="ROUTE-DCP" Name="basys3_routed.dcp"/>
+  <File Type="ROUTE-BLACKBOX-DCP" Name="basys3_routed_bb.dcp"/>
+  <File Type="ROUTE-DRC" Name="basys3_drc_routed.rpt"/>
+  <File Type="ROUTE-DRC-PB" Name="basys3_drc_routed.pb"/>
+  <File Type="BITSTR-LTX" Name="debug_nets.ltx"/>
+  <File Type="BITSTR-LTX" Name="basys3.ltx"/>
+  <File Type="ROUTE-DRC-RPX" Name="basys3_drc_routed.rpx"/>
+  <File Type="BITSTR-MMI" Name="basys3.mmi"/>
+  <File Type="ROUTE-METHODOLOGY-DRC" Name="basys3_methodology_drc_routed.rpt"/>
+  <File Type="ROUTE-METHODOLOGY-DRC-RPX" Name="basys3_methodology_drc_routed.rpx"/>
+  <File Type="BITSTR-SYSDEF" Name="basys3.sysdef"/>
+  <File Type="ROUTE-METHODOLOGY-DRC-PB" Name="basys3_methodology_drc_routed.pb"/>
+  <File Type="ROUTE-PWR-RPX" Name="basys3_power_routed.rpx"/>
+  <File Type="ROUTE-STATUS" Name="basys3_route_status.rpt"/>
+  <File Type="ROUTE-STATUS-PB" Name="basys3_route_status.pb"/>
+  <File Type="ROUTE-TIMINGSUMMARY" Name="basys3_timing_summary_routed.rpt"/>
+  <File Type="ROUTE-TIMING-PB" Name="basys3_timing_summary_routed.pb"/>
+  <File Type="ROUTE-TIMING-RPX" Name="basys3_timing_summary_routed.rpx"/>
+  <File Type="ROUTE-SIMILARITY" Name="basys3_incremental_reuse_routed.rpt"/>
+  <File Type="ROUTE-CLK" Name="basys3_clock_utilization_routed.rpt"/>
+  <File Type="ROUTE-BUS-SKEW" Name="basys3_bus_skew_routed.rpt"/>
+  <File Type="ROUTE-BUS-SKEW-PB" Name="basys3_bus_skew_routed.pb"/>
+  <File Type="ROUTE-BUS-SKEW-RPX" Name="basys3_bus_skew_routed.rpx"/>
+  <File Type="POSTROUTE-PHYSOPT-DCP" Name="basys3_postroute_physopt.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-BLACKBOX-DCP" Name="basys3_postroute_physopt_bb.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING" Name="basys3_timing_summary_postroute_physopted.rpt"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING-PB" Name="basys3_timing_summary_postroute_physopted.pb"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING-RPX" Name="basys3_timing_summary_postroute_physopted.rpx"/>
+  <File Type="POSTROUTE-PHYSOPT-BUS-SKEW" Name="basys3_bus_skew_postroute_physopted.rpt"/>
+  <File Type="POSTROUTE-PHYSOPT-BUS-SKEW-PB" Name="basys3_bus_skew_postroute_physopted.pb"/>
+  <File Type="BG-BIT" Name="basys3.bit"/>
+  <File Type="POSTROUTE-PHYSOPT-BUS-SKEW-RPX" Name="basys3_bus_skew_postroute_physopted.rpx"/>
+  <File Type="BITSTR-RBT" Name="basys3.rbt"/>
+  <File Type="BITSTR-NKY" Name="basys3.nky"/>
+  <File Type="BG-DRC" Name="basys3.drc"/>
+  <File Type="RDI-RDI" Name="basys3.vdi"/>
+  <File Type="WBT-USG" Name="usage_statistics_webtalk.html"/>
+  <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
+    <Filter Type="Srcs"/>
+    <File Path="$PSRCDIR/sources_1/new/poker.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/uart.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/uart_fifo.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/constants.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/uart_top.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/basys3.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../Desktop/lab1_original/Src_lab1/rtl/seq.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../Desktop/lab1_original/Src_lab1/rtl/seq_add.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../Desktop/lab1_original/Src_lab1/rtl/seq_alu.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../Desktop/lab1_original/Src_lab1/rtl/seq_mult.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PPRDIR/../../Desktop/lab1_original/Src_lab1/rtl/seq_rf.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="DesignMode" Val="RTL"/>
+      <Option Name="TopModule" Val="basys3"/>
+      <Option Name="TopAutoSet" Val="TRUE"/>
+    </Config>
+  </FileSet>
+  <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">
+    <Filter Type="Constrs"/>
+    <File Path="$PSRCDIR/basys.xdc">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="ConstrsType" Val="XDC"/>
+    </Config>
+  </FileSet>
+  <Strategy Version="1" Minor="2">
+    <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2018"/>
+    <Step Id="init_design"/>
+    <Step Id="opt_design"/>
+    <Step Id="power_opt_design"/>
+    <Step Id="place_design"/>
+    <Step Id="post_place_power_opt_design"/>
+    <Step Id="phys_opt_design"/>
+    <Step Id="route_design"/>
+    <Step Id="post_route_phys_opt_design"/>
+    <Step Id="write_bitstream"/>
+  </Strategy>
+</GenRun>
