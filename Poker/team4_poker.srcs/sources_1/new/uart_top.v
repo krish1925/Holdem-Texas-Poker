@@ -14,7 +14,7 @@ module uart_top (/*AUTOARG*/
    output [7:0]             o_rx_data;
    output                   o_rx_valid;
    
-   input [seq_width-1:0] i_tx_data;
+   input [23:0] i_tx_data;
    input                    i_tx_stb;
    
    input                    clk;
@@ -24,8 +24,9 @@ module uart_top (/*AUTOARG*/
    parameter stIdle = 0;
    parameter stNib1 = 1;
    parameter stSPC = 3;
-   parameter stNL   = 6;
-   parameter stCR   = 7;
+   parameter stSPC2 = 6;
+   parameter stNL   = 9;
+   parameter stCR   = 10;
    
    //SV SV SV
    //SV SV
@@ -41,7 +42,7 @@ module uart_top (/*AUTOARG*/
    wire                 tx_active;
    wire                 tfifo_rd;
    reg                  tfifo_rd_z;
-   reg [seq_width-1:0]  tx_data;
+   reg [23:0]  tx_data;
    integer               state;
    
       reg [7:0]            card1, card2;
@@ -63,6 +64,8 @@ module uart_top (/*AUTOARG*/
                 tx_data <= i_tx_data;
              end
          stSPC:
+           if (~tfifo_full) state <= state + 1;
+         stSPC2:
            if (~tfifo_full) state <= state + 1;
          stCR:
            if (~tfifo_full) state <= stIdle;
@@ -126,7 +129,7 @@ function [7:0] fnNib2ASCII;
             4'b1100: fnNib2ASCII = "i"; //Hearts
             4'b1101: fnNib2ASCII = "j"; //Diamonds
             4'b1110: fnNib2ASCII = "k"; //Clubs
-            4'b1111: fnNib2ASCII = "l";
+            4'b1111: fnNib2ASCII = " ";
             default: fnNib2ASCII = "?";
          endcase // case (suit)
       end
@@ -150,6 +153,7 @@ function [7:0] fnNib2ASCII;
             4'b1010: fnCardValueToName = "Q";//8'b00100011; // "Q" (Queen)
             4'b1011: fnCardValueToName = "K";// 8'b01001011; // "K" (King)
             4'b1100: fnCardValueToName = "A";//8'b01000001; // "A" (Ace)
+            4'b1111:fnCardValueToName = " ";
             default: fnCardValueToName = "0";//8'b00110000; // "0" (Invalid value)
          endcase
       end
@@ -158,14 +162,15 @@ function [7:0] fnNib2ASCII;
    always @*
      case (state)
        stSPC:   tfifo_in = " ";
+       stSPC2: tfifo_in = " ";
        stNL:    tfifo_in = "\n";
        stCR:    tfifo_in = "\r";
        default: 
        begin
            if (state % 3 == 1)
-            tfifo_in = fnCardValueToName(tx_data[15:12]);
+            tfifo_in = fnCardValueToName(tx_data[23:20]);
            else 
-            tfifo_in = fnNib2ASCII(tx_data[15:12]);
+            tfifo_in = fnNib2ASCII(tx_data[23:20]);
        end
      endcase // case (state)
    

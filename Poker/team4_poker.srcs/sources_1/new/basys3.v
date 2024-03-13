@@ -7,7 +7,7 @@ module basys3 (/*AUTOARG*/
 
 `include "constants.v"
    
-   wire [15:0] playerout;
+   wire [23:0] playerout;
    
    // USB-UART
    input        RsRx;
@@ -143,12 +143,13 @@ module basys3 (/*AUTOARG*/
    .playerout (playerout),
    //Inputs
    .clk (clk),
-   .valid (inst_vld)
+   .valid (inst_vld),
+   .busy (uart_tx_busy)
    );
 
    uart_top uart_top_ (// Outputs
                        .o_tx            (RsTx),
-                       //.o_tx_busy       (uart_tx_busy),
+                       .o_tx_busy       (uart_tx_busy),
                        //.o_rx_data       (uart_rx_data[7:0]),
                        //.o_rx_valid      (uart_rx_valid),
                        // Inputs
