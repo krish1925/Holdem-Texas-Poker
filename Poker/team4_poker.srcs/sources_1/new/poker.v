@@ -27,7 +27,7 @@ module poker(
     //Inputs
     clk,
     valid,
-    busy
+    busy, sw
     );
     output[23:0] playerout;
     //reg[7:0] out;
@@ -45,16 +45,29 @@ module poker(
     reg [51:0] card_array;
     integer p1 [1:0];
     integer p2 [1:0];
-    integer currp [2:0];
+    integer currp1; //[2:0];
+    integer currp2;
+    integer currp3;
     reg player;
     integer bet_player1;
     integer bet_player2;
     integer money_p1;
     integer money_p2;
     integer pot;
+    integer initialize;
 
 
     integer winner;
+    
+    integer p11;
+    integer p10;
+    integer p21;
+    integer p20;
+    integer c1;
+    integer c2;
+    integer c3;
+    
+    
     
      // Winner determination logic
       integer winner_value = 0;
@@ -129,6 +142,7 @@ module poker(
         input integer community3;
         integer straightflush;
         integer i;
+        integer cards[5:0];
 
         begin
             // Call checkstraightflush function
@@ -136,7 +150,7 @@ module poker(
 
             // Check if it's a straight flush and if any card is an ace (card % 13 = 12)
             if (straightflush != 20) begin
-                integer cards[5];
+              
                 cards[0] = playercard1;
                 cards[1] = playercard2;
                 cards[2] = community1;
@@ -190,7 +204,7 @@ module poker(
         input integer community1;
         input integer community2;
         input integer community3;
-        integer cards[5];
+        integer cards[5:0];
         integer i, j, temp;
 
         begin
@@ -237,7 +251,7 @@ module poker(
         input integer community1;
         input integer community2;
         input integer community3;
-        integer cards[5];
+        integer cards[5:0];
         integer i, j, temp;
 
         begin
@@ -285,7 +299,7 @@ module poker(
         input integer community1;
         input integer community2;
         input integer community3;
-        integer suit[5];
+        integer suit[5:0];
         integer i;
         begin
             suit[0] = playercard1 / 13;
@@ -310,7 +324,7 @@ module poker(
         input integer community1;
         input integer community2;
         input integer community3;
-        integer cards[5];
+        integer cards[5:0];
         integer i, j, temp;
 
         begin
@@ -354,7 +368,7 @@ module poker(
         input integer community1;
         input integer community2;
         input integer community3;
-        integer cards[5];
+        integer cards[5:0];
         integer i, j, temp;
 
         begin
@@ -404,7 +418,7 @@ module poker(
         input integer community1;
         input integer community2;
         input integer community3;
-        integer cards[5];
+        integer cards[5:0];
         integer high1;
         integer high2;
         integer i, j, temp;
@@ -456,7 +470,7 @@ module poker(
         input integer community1;
         input integer community2;
         input integer community3;
-        integer cards[5];
+        integer cards[5:0];
         integer i, j, temp;
 
         begin
@@ -499,7 +513,7 @@ module poker(
     input integer community1;
     input integer community2;
     input integer community3;
-    integer cards[5];
+    integer cards[5:0];
     integer max_card;
     integer i;
 
@@ -530,57 +544,57 @@ endfunction
 
 
     
-    // function integer randCard;
+   function integer randCard;
         input integer s;
         input [51:0] card_array;
         integer card, count;
         begin
             count = 0;
-            //card = $random(s) % 52; // Pick a random card
+            card = $random(s) % 52; // Pick a random card
             card = s % 52;
-//            while ((card_array[card] == 1) && (count < 52)) begin
-//                card = s % 52; // Pick another if already chosen
-//                count = count + 1;
-//            end
-//            if (count < 52) begin
-//                card_array[card] = 1; // Mark card as chosen
-//            end
-//            else begin
-//                card = 1; // Indicate failure to find a unique card
-//            end
-    //         randCard = card;
-    //     end
-    // endfunction   
+            while ((card_array[card] == 1) && (count < 52)) begin
+                card = s % 52; // Pick another if already chosen
+                count = count + 1;
+            end
+            if (count < 52) begin
+                card_array[card] = 1; // Mark card as chosen
+            end
+            else begin
+                card = 1; // Indicate failure to find a unique card
+            end
+             randCard = card;
+         end
+     endfunction   
 
 
 
     //new randcard function: 
-    function integer randCard;
-        input integer s;
-        input [51:0] card_array;
-        output [51:0] card_array_out;
-        integer card, count;
-        reg [51:0] card_array_temp;
-        begin
-            count = 0;
-            card = $urandom(s) % 52; // Initial card selection attempt
-            card_array_temp = card_array; // Copy input card_array to a temporary variable for modification
+//    function integer randCard;
+//        input integer s;
+//        input [51:0] card_array;
+//        output [51:0] card_array_out;
+//        integer card, count;
+//        reg [51:0] card_array_temp;
+//        begin
+//            count = 0;
+//            card = s % 52; // Initial card selection attempt
+//            card_array_temp = card_array; // Copy input card_array to a temporary variable for modification
 
-            // Loop until an unselected card is found or we've attempted all cards
-            while ((card_array_temp[card] == 1) && (count < 52)) begin
-                card = (card + 1) % 52; // Try the next card
-                count = count + 1; // Increment the attempt count
-            end
+//            // Loop until an unselected card is found or we've attempted all cards
+//            while ((card_array_temp[card] == 1) && (count < 52)) begin
+//                card = (card + 1) % 52; // Try the next card
+//                count = count + 1; // Increment the attempt count
+//            end
 
-            if (count < 52) begin
-                card_array_temp[card] = 1; // Mark card as chosen in the temporary array
-                randCard = card; // Return the chosen card
-            end else begin
-                randCard = -1; // Indicate failure to find a unique card
-            end
-            card_array_out = card_array_temp; // Output the updated card array
-        end
-    endfunction
+//            if (count < 52) begin
+//                card_array_temp[card] = 1; // Mark card as chosen in the temporary array
+//                randCard = card; // Return the chosen card
+//            end else begin
+//                randCard = -1; // Indicate failure to find a unique card
+//            end
+//            card_array_out = card_array_temp; // Output the updated card array
+//        end
+//    endfunction
    
     
     function [7:0] cardConvert;
@@ -604,6 +618,8 @@ endfunction
         player = 0;
         money_p1 = 100;
         money_p2 = 100;
+        initialize = 0;
+        rndStart = 0;
     end
     
     always @ (posedge valid) begin
@@ -611,46 +627,58 @@ endfunction
             rndStart = 0;
         //if (rndStart != 0)
                     //rndStart = rndStart + 1;
-        if(rndStart == 0) begin
-            p1[0] = randCard(counter, card_array);
-            p1[1] = randCard(counter + 1, card_array);
+        if(rndStart == 0 && initialize == 0) begin
+        
+        p10 = randCard(counter, card_array);
+        p11 = randCard(counter+1, card_array);
+        p20 = randCard(counter+2, card_array);
+        p21 = randCard(counter+3, card_array);
+        c1 = randCard(counter+4, card_array);
+        c2 = randCard(counter+5, card_array);
+        c3 = randCard(counter+6, card_array);
+           // p1[0] = 36; //randCard(counter, card_array);
+            //p1[1] =43;// randCard(counter + 1, card_array);
             
-            p2[0] = randCard(counter + 2, card_array);
-            p2[1] = randCard(counter + 3, card_array);
+           // p2[0] = 34 ;// randCard(counter + 2, card_array);
+           // p2[1] = 25;// randCard(counter + 3, card_array);
             
-            community[0] = randCard(counter + 4, card_array);
-            community[1] = randCard(counter + 5, card_array);
-            community[2] = randCard(counter + 6, card_array);
+           // community[0] = 11;// randCard(counter + 4, card_array);
+         //   community[1] = 21;//randCard(counter + 5, card_array);
+           // community[2] = 31;//randCard(counter + 6, card_array);
             //community[3] = randCard(counter + 7, card_array);
             //community[4] = randCard(counter + 8, card_array);
             //rndStart = 1;
+            initialize = 1;
+           // $display("rndStart = %d: Community cards after assignment: %d, %d, %d", rndStart, community[0], community[1], community[2]);
+
+             
         end
-        
+                   // $display("Beginning of always block - rndStart = %d, Community: %d, %d, %d", rndStart, community[0], community[1], community[2]);
         case (rndStart)
             0: begin
-                currp[0] = community[0];
-                currp[1] = community[1];
-                currp[2] = community[2];
+                currp1 = c1;
+                currp2 = c2;
+                currp3 = c3;
             end
             1: begin
-                currp[0] = p1[0];
-                currp[1] = p1[1];
-                currp[2] = -1;
+                currp1 = p10;
+                currp2 = p11;
+                currp3 = -1;
             end
             2: begin
-                currp[0] = community[0];
-                currp[1] = community[1];
-                currp[2] = community[2];
+               currp1 = c1;
+               currp2 = c2;
+               currp3 = c3;
             end
             3: begin
-                currp[0] = p2[0];
-                currp[1] = p2[1];
-                currp[2] = -1;
+                currp1 = p20;
+                currp2 = p21;
+                 currp3 = -1;
             end
             4 : begin
-                currp[0] = -1;
-                currp[1] = -1;
-                currp[2] = -1;
+                currp1 = -1;
+                currp2 = -1;
+                currp3 = -1;
             end
             5:
                 begin 
@@ -662,7 +690,9 @@ endfunction
                     money_p2 = money_p2 - 5; //min bet
                     pot = pot + 10;
 
-                    while(money_p1 != money_p2)
+                    while(bet_player1  !=bet_player2)begin
+                     bet_player1 = bet_player2;
+                     end
                     //make it go through the loop until both players have the same amount of money,a dnit sohuld go through this once
                     
                 end
@@ -670,9 +700,12 @@ endfunction
             begin 
 
                winner = 1; // winner detection here
+               initialize = 0;
+               rndStart = -1;
             end
 
         endcase
+       // $display("End of always block - rndStart = %d, Community: %d, %d, %d", rndStart, community[0], community[1], community[2]);
         rndStart = rndStart + 1;
 //        if (rndStart < 2) begin
 //            if (rndStart == 0) begin 
@@ -749,6 +782,12 @@ endfunction
         end
        end
        
-       assign playerout = {cardConvert(currp[0]), cardConvert(currp[1]), cardConvert(currp[2])};
+       reg [23:0] playerout_reg;
+       always @(posedge clk) begin
+           playerout_reg <= {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
+       end
+       
+       assign playerout = playerout_reg;
+      // assign playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
        
 endmodule

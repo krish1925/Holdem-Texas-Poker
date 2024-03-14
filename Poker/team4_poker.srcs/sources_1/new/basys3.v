@@ -2,7 +2,7 @@ module basys3 (/*AUTOARG*/
    // Outputs
    RsTx, //led,
    // Inputs
-   RsRx, sw, btnS, btnR, clk, btnD
+   RsRx, sw, btnS, btnR, clk, //btnD
    );
 
 `include "constants.v"
@@ -18,7 +18,9 @@ module basys3 (/*AUTOARG*/
    //output [7:0] led;
    input        btnS;                 // single-step instruction
    input        btnR;                 // arst
-   input       btnD;                 // input for bet  //new
+  
+  
+  // input       btnD;                 // input for bet  //new
    
    // Logic
    input        clk;                  // 100MHz
@@ -38,9 +40,9 @@ module basys3 (/*AUTOARG*/
 
 
 
-   wire validation;  //new
-   wire  arst_ii; //new 
-   reg [1:0] arst_foo; //new
+//   wire validation;  //new
+//   wire  arst_ii; //new 
+//   reg [1:0] arst_foo; //new
 
 
 
@@ -75,14 +77,14 @@ module basys3 (/*AUTOARG*/
    // Asynchronous Bet Amount Signal validation
    // ===========================================================================
 
-   assign arst_ii = btnD;  //new 
-   assign validation = arst_foo[0]; //new
+//   assign arst_ii = btnD;  //new 
+//   assign validation = arst_foo[0]; //new
    
-   always @ (posedge clk or posedge arst_i) //new
-     if (arst_ii) //new
-       arst_foo <= 2'b11; //new
-     else //new
-       arst_foo <= {1'b0, arst_foo[1]}; //new
+//   always @ (posedge clk or posedge arst_i) //new
+//     if (arst_ii) //new
+//       arst_foo <= 2'b11; //new
+//     else //new
+//       arst_foo <= {1'b0, arst_foo[1]}; //new
 
    // ===========================================================================
    // 763Hz timing signal for clock enable
@@ -167,7 +169,7 @@ module basys3 (/*AUTOARG*/
    //Inputs
    .clk (clk),
    .valid (inst_vld),
-    .bet_valid (validation), //new
+   //bet_valid (validation), //new
    .busy (uart_tx_busy)
    );
 
