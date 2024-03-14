@@ -563,7 +563,7 @@ endfunction
         reg [51:0] card_array_temp;
         begin
             count = 0;
-            card = s % 52; // Initial card selection attempt
+            card = $urandom(s) % 52; // Initial card selection attempt
             card_array_temp = card_array; // Copy input card_array to a temporary variable for modification
 
             // Loop until an unselected card is found or we've attempted all cards
