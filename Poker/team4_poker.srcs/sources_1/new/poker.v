@@ -607,7 +607,7 @@ endfunction
     end
     
     always @ (posedge valid) begin
-        if (rndStart == 6)
+        if (rndStart == 7)
             rndStart = 0;
         //if (rndStart != 0)
                     //rndStart = rndStart + 1;
