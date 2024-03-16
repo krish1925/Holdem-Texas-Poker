@@ -44,6 +44,7 @@ module uart_top (/*AUTOARG*/
    reg                  tfifo_rd_z;
    reg [23:0]  tx_data;
    integer               state;
+   integer               clear_screen_state = 0;
    
       reg [7:0]            card1, card2;
       reg                  pick_card;
@@ -53,15 +54,20 @@ module uart_top (/*AUTOARG*/
    assign o_tx_busy = (state!=stIdle);
    
    always @ (posedge clk)
-     if (rst)
+     if (rst) begin
        state <= stIdle;
-     else
+       clear_screen_state <= 0;
+     end else
        case (state)
          stIdle:
            if (i_tx_stb)
              begin
-                state   <= stNib1;
-                tx_data <= i_tx_data;
+                //if (!clear_screen_state || clear_screen_state >= 20) begin
+                    state   <= stNib1;
+                    tx_data <= i_tx_data;
+                    clear_screen_state <= 0;
+                //end
+                //else if (~tfifo_full) clear_screen_state <= clear_screen_state + 1;
              end
          stSPC:
            if (~tfifo_full) state <= state + 1;
@@ -72,8 +78,12 @@ module uart_top (/*AUTOARG*/
          default:
            if (~tfifo_full)
              begin
-                state   <= state + 1;
-                tx_data <= {tx_data,4'b0000};
+                if (state == stNib1 && tx_data[7:0] != 8'b11111111 && clear_screen_state < 22) //not stateIdls
+                    clear_screen_state <= clear_screen_state + 1;
+                else begin
+                    state   <= state + 1;
+                    tx_data <= {tx_data,4'b0000};
+                end
              end
        endcase // case (state)
 
@@ -167,7 +177,9 @@ function [7:0] fnNib2ASCII;
        stCR:    tfifo_in = "\r";
        default: 
        begin
-           if (state % 3 == 1)
+           if (state == stNib1 && tx_data[7:0] != 8'b11111111 && clear_screen_state < 22)
+             tfifo_in = "\n";
+           else if (state % 3 == 1)
             tfifo_in = fnCardValueToName(tx_data[23:20]);
            else 
             tfifo_in = fnNib2ASCII(tx_data[23:20]);

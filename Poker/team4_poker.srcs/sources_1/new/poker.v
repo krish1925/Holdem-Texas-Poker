@@ -1,42 +1,22 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 03/06/2024 01:04:47 PM
-// Design Name: 
-// Module Name: poker
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module poker(
     //Outputs
     playerout,
-    
+    display_value,
     //Inputs
     clk,
     valid,
     busy, sw
     );
-    output[23:0] playerout;
-    //reg[7:0] out;
+    output [23:0] playerout;
+    output reg [31:0] display_value = 0;
     
     input        clk;
     input valid;
     input busy;
 
-
+    
 
     input [15:0] sw;
 
@@ -80,6 +60,9 @@ module poker(
     integer counter;
     
     integer seed;
+    
+    integer p1_score = 1234;
+    integer p2_score = 5678;
     
 //    function randCard;
 //        input [51:0] card_array;
@@ -550,7 +533,7 @@ endfunction
         integer card, count;
         begin
             count = 0;
-            card = $random(s) % 52; // Pick a random card
+            //card = $random(s) % 52; // Pick a random card
             card = s % 52;
             while ((card_array[card] == 1) && (count < 52)) begin
                 card = s % 52; // Pick another if already chosen
@@ -659,21 +642,25 @@ endfunction
                 currp1 = c1;
                 currp2 = c2;
                 currp3 = c3;
+                display_value = p1_score;
             end
             1: begin
                 currp1 = p10;
                 currp2 = p11;
                 currp3 = -1;
+                display_value = p1_score;
             end
             2: begin
                currp1 = c1;
                currp2 = c2;
                currp3 = c3;
+               display_value = p2_score;
             end
             3: begin
                 currp1 = p20;
                 currp2 = p21;
-                 currp3 = -1;
+                currp3 = -1;
+                display_value = p2_score;
             end
             4 : begin
                 currp1 = -1;
@@ -707,6 +694,7 @@ endfunction
         endcase
        // $display("End of always block - rndStart = %d, Community: %d, %d, %d", rndStart, community[0], community[1], community[2]);
         rndStart = rndStart + 1;
+//        playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
 //        if (rndStart < 2) begin
 //            if (rndStart == 0) begin 
 //                currp[0] = community[0];
@@ -775,6 +763,8 @@ endfunction
         
        end
        
+       assign playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
+       
        always @ (posedge clk) begin
         counter = counter + 1;
         if (counter + 10 < 0) begin
@@ -782,12 +772,11 @@ endfunction
         end
        end
        
-       reg [23:0] playerout_reg;
-       always @(posedge clk) begin
-           playerout_reg <= {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
-       end
+//       reg [23:0] playerout_reg;
+//       always @(posedge clk) begin
+//           playerout_reg <= {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
+//       end
        
-       assign playerout = playerout_reg;
-      // assign playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
+//       assign playerout = playerout_reg;
        
 endmodule
