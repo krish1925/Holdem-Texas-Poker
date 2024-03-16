@@ -2,7 +2,7 @@ module basys3 (/*AUTOARG*/
    // Outputs
    RsTx, an, seg,//led,
    // Inputs
-   RsRx, sw, btnS, btnR, clk, //btnD
+   RsRx, sw, btnS, btnR, btnL, clk, //btnD
    );
 
 `include "constants.v"
@@ -18,9 +18,9 @@ module basys3 (/*AUTOARG*/
    // Misc.
    input  [7:0] sw;
    //output [7:0] led;
-   input        btnS;                 // single-step instruction
+   input        btnS;                 // advance turn
    input        btnR;                 // arst
-  
+   input        btnL;                 // toggle 7-segment
   
   // input       btnD;                 // input for bet  //new
    
@@ -56,6 +56,7 @@ module basys3 (/*AUTOARG*/
    reg [7:0]   inst_wd;
    reg         inst_vld;
    reg [2:0]   step_d;
+   reg [2:0]   step_e;
 
    reg [7:0]   inst_cnt;
    
@@ -118,20 +119,22 @@ module basys3 (/*AUTOARG*/
        begin
           inst_wd[7:0] <= 0;
           step_d[2:0]  <= 0;
+          step_e[2:0]  <= 0;
        end
      else if (clk_en)
        begin
           inst_wd[7:0] <= sw[7:0];
           step_d[2:0]  <= {btnS, step_d[2:1]};
+          step_e[2:0]  <= {btnL, step_e[2:1]};
        end
 
    always @ (posedge clk) begin
      if (rst)
-       inst_vld <= 1'b0;
+         inst_vld <= 1'b0;
      else
-       inst_vld <= ~step_d[0] & step_d[1] & clk_en_d;
-     inst_vld_d[1] = inst_vld_d[0];
-     inst_vld_d[0] <= inst_vld;
+         inst_vld <= ~step_d[0] & step_d[1] & clk_en_d;
+         inst_vld_d[1] = inst_vld_d[0];
+         inst_vld_d[0] <= inst_vld;
    end
    
    always @ (posedge clk)
@@ -177,7 +180,8 @@ module basys3 (/*AUTOARG*/
    .clk (clk),
    .valid (inst_vld_d[0]),
    //bet_valid (validation), //new
-   .busy (uart_tx_busy)
+   .busy (uart_tx_busy),
+   .display_toggle (step_e[1])
    );
    
    uart_top uart_top_ (// Outputs

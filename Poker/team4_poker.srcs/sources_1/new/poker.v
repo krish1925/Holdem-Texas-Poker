@@ -7,7 +7,8 @@ module poker(
     //Inputs
     clk,
     valid,
-    busy, sw
+    busy, sw,
+    display_toggle
     );
     output [23:0] playerout;
     output reg [31:0] display_value = 0;
@@ -16,11 +17,9 @@ module poker(
     input valid;
     input busy;
 
-    
-
     input [15:0] sw;
 
-
+    input display_toggle;
     
     integer p1 [1:0];
     integer p2 [1:0];
@@ -60,8 +59,18 @@ module poker(
     
     integer seed;
     
-    integer p1_score = 1234;
-    integer p2_score = 5678;
+    
+    //7-Segment Display Values
+    //modify these to change what appears on the 7-segment display
+    
+    integer p1_money = 1234; //Current money of player 1 
+    integer p2_money = 5678; //Current money of player 1 
+    
+    integer p1_bet = 0; //Current bet of player 1 
+    integer p2_bet = 0; //Current bet of player 2 
+    integer bet = 100; //Current bet that players must match
+    
+    integer display_state = 0; //Current state of 7-segment display
     
 //    function randCard;
 //        input [51:0] card_array;
@@ -611,20 +620,21 @@ endfunction
         integer card;
     begin        
         card = rand(52);
-        if (card_array[card]) begin
-            if (!card_array[(card + 1) % 52])
-                card = (card + 1) % 52;
-            else if (!card_array[(card + 2) % 52])
-                card = (card + 2) % 52;
-            else if (!card_array[(card + 3) % 52])
-                card = (card + 3) % 52;
-            else if (!card_array[(card + 4) % 52])
-                 card = (card + 4) % 52;
-            else if (!card_array[(card + 5) % 52])
-                 card = (card + 5) % 52;
-            else
-                card = (card + 6) % 52;
-        end
+//BELOW CODE INCREASES IMPLEMENTATION TIME, LEAVE COMMENTED FOR NOW
+//        if (card_array[card]) begin
+//            if (!card_array[(card + 1) % 52])
+//                card = (card + 1) % 52;
+//            else if (!card_array[(card + 2) % 52])
+//                card = (card + 2) % 52;
+//            else if (!card_array[(card + 3) % 52])
+//                card = (card + 3) % 52;
+//            else if (!card_array[(card + 4) % 52])
+//                 card = (card + 4) % 52;
+//            else if (!card_array[(card + 5) % 52])
+//                 card = (card + 5) % 52;
+//            else
+//                card = (card + 6) % 52;
+//        end
             
         card_array[card] = 1;
         randcard = card;
@@ -683,25 +693,25 @@ endfunction
                 currp1 = c1;
                 currp2 = c2;
                 currp3 = c3;
-                display_value = p1_score;
+                player = 0;
             end
             1: begin
                 currp1 = p10;
                 currp2 = p11;
                 currp3 = -1;
-                display_value = p1_score;
+                player = 0;
             end
             2: begin
                currp1 = c1;
                currp2 = c2;
                currp3 = c3;
-               display_value = p2_score;
+               player = 1;
             end
             3: begin
                 currp1 = p20;
                 currp2 = p21;
                 currp3 = -1;
-                display_value = p2_score;
+                player = 1;
             end
             4 : begin
                 currp1 = -1;
@@ -805,8 +815,21 @@ endfunction
        end
        
        assign playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
-       
-       
+        
+        always @ (posedge display_toggle | valid) begin
+            if (valid)
+                display_state <= 0;
+            else
+                display_state <= (display_state + 1) % 3;
+        end
+
+        always @* begin
+            case (display_state)
+                0: display_value = ~player ? p1_money : p2_money;
+                1: display_value = ~player ? p1_bet : p2_bet;
+                2: display_value = bet;
+            endcase
+        end
        
 //       reg[31:0] counter_reg;
        
