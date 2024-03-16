@@ -2,7 +2,7 @@ module basys3 (/*AUTOARG*/
    // Outputs
    RsTx, an, seg,//led,
    // Inputs
-   RsRx, sw, btnS, btnR, clk, //btnD
+   RsRx, sw, btnS, btnR, clk, led//btnD
    );
 
 `include "constants.v"
@@ -17,6 +17,7 @@ module basys3 (/*AUTOARG*/
 
    // Misc.
    input  [7:0] sw;
+   output [15:0] led;
    //output [7:0] led;
    input        btnS;                 // single-step instruction
    input        btnR;                 // arst

@@ -7,7 +7,7 @@ module poker(
     //Inputs
     clk,
     valid,
-    busy, sw
+    busy, sw, led
     );
     output [23:0] playerout;
     output reg [31:0] display_value = 0;
@@ -15,6 +15,7 @@ module poker(
     input        clk;
     input valid;
     input busy;
+    output [15:0] led;
 
     
 
@@ -685,12 +686,76 @@ endfunction
                 end
             6:
             begin 
+                // Check royal flush first
+                p1_score = checkroyalflush(p10, p11, c1, c2, c3);
+                p2_score = checkroyalflush(p20, p21, c1, c2, c3);
+                if(p1_score == 20 && p2_score == 20) begin
+                    // Check straight flush
+                    p1_score = checkstraightflush(p10, p11, c1, c2, c3);
+                    p2_score = checkstraightflush(p20, p21, c1, c2, c3);
+                    if(p1_score == 20 && p2_score == 20) begin
+                        // Check 4 of a kind
+                        p1_score = check4ofakind(p10, p11, c1, c2, c3);
+                        p2_score = check4ofakind(p20, p21, c1, c2, c3);
+                        if(p1_score == 20 && p2_score == 20) begin
+                            // Check full house
+                            p1_score = checkfullhouse(p10, p11, c1, c2, c3);
+                            p2_score = checkfullhouse(p20, p21, c1, c2, c3);
+                            if(p1_score == 20 && p2_score == 20) begin
+                                // Check flush
+                                p1_score = checkflush(p10, p11, c1, c2, c3);
+                                p2_score = checkflush(p20, p21, c1, c2, c3);
+                                if(p1_score == 20 && p2_score == 20) begin
+                                    // Check straight
+                                    p1_score = checkstraight(p10, p11, c1, c2, c3);
+                                    p2_score = checkstraight(p20, p21, c1, c2, c3);
+                                    if(p1_score == 20 && p2_score == 20) begin
+                                        // Check 3 of a kind
+                                        p1_score = checkthreeofakind(p10, p11, c1, c2, c3);
+                                        p2_score = checkthreeofakind(p20, p21, c1, c2, c3);
+                                        if(p1_score == 20 && p2_score == 20) begin
+                                            // Check two pair
+                                            p1_score = checktwopair(p10, p11, c1, c2, c3);
+                                            p2_score = checktwopair(p20, p21, c1, c2, c3);
+                                            if(p1_score == 20 && p2_score == 20) begin
+                                                // Check two of a kind
+                                                p1_score = checktwoofakind(p10, p11, c1, c2, c3);
+                                                p2_score = checktwoofakind(p20, p21, c1, c2, c3);
+                                                if(p1_score == 20 && p2_score == 20) begin
+                                                    // High card
+                                                    p1_score = highcardnum(p10, p11, c1, c2, c3);
+                                                    p2_score = highcardnum(p20, p21, c1, c2, c3);
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
 
-               winner = 1; // winner detection here
-               initialize = 0;
-               rndStart = -1;
+                if(p1_score != 20 || p2_score != 20) begin
+                    if(p1_score == 20) winner = 2;
+                    else if(p2_score == 20) winner = 1;
+                    else if(p1_score > p2_score) winner = 1;
+                    else if(p1_score < p2_score) winner = 2;
+                    else winner = 1; // Randomly assign if values are equal
+                end
+                else begin
+                    winner = 2; // Randomly assign if values are equal should not happen
+                end
+
+               if(winner == 1) begin
+                   money_p1 = money_p1 + pot;
+                   led[3:0] <= 4'b0001;
+                   
+               end
+               else begin
+                   money_p2 = money_p2 + pot;
+               end
+               
             end
-
         endcase
        // $display("End of always block - rndStart = %d, Community: %d, %d, %d", rndStart, community[0], community[1], community[2]);
         rndStart = rndStart + 1;
