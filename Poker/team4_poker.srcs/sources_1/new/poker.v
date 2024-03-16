@@ -140,16 +140,16 @@ module poker(
                 cards[2] = community1;
                 cards[3] = community2;
                 cards[4] = community3;
-
+                checkroyalflush = 20; // Not a royal flush
                 for (i = 0; i < 5; i = i + 1) begin
                     if ((cards[i] % 13) == 12) begin
                         checkroyalflush = 12; // Royal flush found
-                        return;
+                        
                     end
                 end
             end
 
-            checkroyalflush = 20; // Not a royal flush
+            
         end
     endfunction
 
@@ -210,19 +210,18 @@ module poker(
                     end
                 end
             end
+            check4ofakind = 20; // No 4 of a kind
 
             // Check if last 4 cards are equal
             if ((cards[1] == cards[2]) && (cards[2] == cards[3]) && (cards[3] == cards[4])) begin
                 check4ofakind = cards[2]; // 4 of a kind found
-                return;
             end
 
             // Check if first 4 cards are equal
             if ((cards[0] == cards[1]) && (cards[1] == cards[2]) && (cards[2] == cards[3])) begin
                 check4ofakind = cards[2]; // 4 of a kind found
-                return;
             end
-            check4ofakind = 20; // No 4 of a kind
+            
         end
     endfunction
 
@@ -257,20 +256,19 @@ module poker(
                     end
                 end
             end
+            
+            checkfullhouse = 20; // No full house
 
             // Check if first three cards and then the other two cards are equal
             if ((cards[0] == cards[1]) && (cards[1] == cards[2]) && (cards[3] == cards[4])) begin
                 checkfullhouse = cards[3]; // Full house found
-                return;
             end
 
             // Check if first two cards and then the last three cards are equal
             if ((cards[0] == cards[1]) && (cards[2] == cards[3]) && (cards[3] == cards[4])) begin
                 checkfullhouse = cards[1]; // Full house found
-                return;
             end
 
-            checkfullhouse = 20; // No full house
         end
     endfunction
 
@@ -330,16 +328,16 @@ module poker(
                     end
                 end
             end
+            checkstraight = cards[4];
 
             // Check if cards are in ascending order
             for (i = 0; i < 4; i = i + 1) begin
                 if (cards[i] + 1 != cards[i + 1]) begin
                     checkstraight = 20; // Not in ascending order
-                    return;
                 end
             end
 
-            checkstraight = cards[4]; // In ascending order
+ // In ascending order
         end
     endfunction
 
@@ -374,23 +372,21 @@ module poker(
                     end
                 end
             end
+            checkthreeofakind = 20; // No three of a kind
 
             // Check if first three cards are equal
             if ((cards[0] == cards[1]) && (cards[1] == cards[2])) begin
                 checkthreeofakind = cards[2]; // Three of a kind found
-                return;
             end
             // Check if middle three cards are equal
             if ((cards[1] == cards[2]) && (cards[2] == cards[3])) begin
                 checkthreeofakind = cards[2]; // Three of a kind found
-                return;
             end
             // Check if end three cards are equal
             if ((cards[2] == cards[3]) && (cards[3] == cards[4])) begin
                 checkthreeofakind = cards[2]; // Three of a kind found
-                return;
             end
-            checkthreeofakind = 20; // No three of a kind
+
         end
     endfunction
 
@@ -426,6 +422,7 @@ module poker(
                     end
                 end
             end
+            checktwopair = 20; // No two pair
 
             // Check if the first pair exists
             if ((cards[0] == cards[1]) || (cards[1] == cards[2])) begin
@@ -438,11 +435,10 @@ module poker(
                         checktwopair = high1; // Two pair found
                     else
                         checktwopair = high2;
-                    return;
                 end
             end
 
-            checktwopair = 20; // No two pair
+            
         end
     endfunction
 
@@ -476,16 +472,16 @@ module poker(
                     end
                 end
             end
+            checktwoofakind = 20; // No two of a kind
 
             // Check adjacent cards for two of a kind
             for (i = 0; i < 4; i = i + 1) begin
                 if (cards[i] == cards[i + 1]) begin
                     checktwoofakind = cards[i]; // Two of a kind found
-                    return;
                 end
             end
 
-            checktwoofakind = 20; // No two of a kind
+            
         end
     endfunction
 
