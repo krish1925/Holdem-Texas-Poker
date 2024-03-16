@@ -57,7 +57,7 @@ module poker(
     integer community [4:0];
     integer rndStart = 0;
     
-    integer counter;
+    //integer counter = 0;
     
     integer seed;
     
@@ -593,11 +593,23 @@ endfunction
             cardConvert = 8'b11111111;
         end
     endfunction
+    
+    integer s = 0;
+    function integer rand;
+        input _s;
+    begin
+        s = (s + 36) * 253;
+        s = s ^ ((s * 76) >> 13);
+        s = (s + 49) * 17;
+        s[31] = 0;
+        rand = s % 52;
+    end
+    endfunction
      
     initial begin
         card_array = 0;
         seed = 12345;
-        counter = 0;
+        //counter = 0;
         player = 0;
         money_p1 = 100;
         money_p2 = 100;
@@ -606,19 +618,21 @@ endfunction
     end
     
     always @ (posedge valid) begin
-        if (rndStart == 6)
+        if (rndStart == 4) begin
             rndStart = 0;
+            initialize = 0;
+        end
         //if (rndStart != 0)
                     //rndStart = rndStart + 1;
         if(rndStart == 0 && initialize == 0) begin
         
-        p10 = randCard(counter, card_array);
-        p11 = randCard(counter+1, card_array);
-        p20 = randCard(counter+2, card_array);
-        p21 = randCard(counter+3, card_array);
-        c1 = randCard(counter+4, card_array);
-        c2 = randCard(counter+5, card_array);
-        c3 = randCard(counter+6, card_array);
+        p10 = rand(s);//randCard(counter, card_array);
+        p11 = rand(s);//randCard(counter+1, card_array);
+        p20 = rand(s);//randCard(counter+2, card_array);
+        p21 = rand(s);//randCard(counter+3, card_array);
+        c1 = rand(s);//randCard(counter+4, card_array);
+        c2 = rand(s);//randCard(counter+5, card_array);
+        c3 = rand(s);//randCard(counter+6, card_array);
            // p1[0] = 36; //randCard(counter, card_array);
             //p1[1] =43;// randCard(counter + 1, card_array);
             
@@ -765,12 +779,21 @@ endfunction
        
        assign playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
        
-       always @ (posedge clk) begin
-        counter = counter + 1;
-        if (counter + 10 < 0) begin
-            counter = 0;
-        end
-       end
+       
+       
+//       reg[31:0] counter_reg;
+       
+//       assign counter = (counter_reg + 1);
+       
+//       always @ (posedge clk) begin
+//        counter_reg <= counter;
+//       end
+//       always @ (posedge clk) begin
+//        counter = counter + 1;
+//        if (counter + 10 < 0) begin
+//            counter = 0;
+//        end
+//       end
        
 //       reg [23:0] playerout_reg;
 //       always @(posedge clk) begin
