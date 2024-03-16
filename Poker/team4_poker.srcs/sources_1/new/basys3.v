@@ -217,7 +217,7 @@ module basys3 (/*AUTOARG*/
             default: seg = 7'b1111111; // " "
         endcase
     end
-       
+
    always @ (posedge clk) begin
       clk_display   <= clk_display + clk_dv_inc[17]; //381 Hz //not
    end

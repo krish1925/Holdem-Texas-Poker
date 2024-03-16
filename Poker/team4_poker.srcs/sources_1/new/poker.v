@@ -22,7 +22,6 @@ module poker(
 
 
     
-    reg [51:0] card_array;
     integer p1 [1:0];
     integer p2 [1:0];
     integer currp1; //[2:0];
@@ -527,27 +526,27 @@ endfunction
 
 
     
-   function integer randCard;
-        input integer s;
-        input [51:0] card_array;
-        integer card, count;
-        begin
-            count = 0;
-            //card = $random(s) % 52; // Pick a random card
-            card = s % 52;
-            while ((card_array[card] == 1) && (count < 52)) begin
-                card = s % 52; // Pick another if already chosen
-                count = count + 1;
-            end
-            if (count < 52) begin
-                card_array[card] = 1; // Mark card as chosen
-            end
-            else begin
-                card = 1; // Indicate failure to find a unique card
-            end
-             randCard = card;
-         end
-     endfunction   
+//   function integer randCard;
+//        input integer s;
+//        input [51:0] card_array;
+//        integer card, count;
+//        begin
+//            count = 0;
+//            //card = $random(s) % 52; // Pick a random card
+//            card = s % 52;
+//            while ((card_array[card] == 1) && (count < 52)) begin
+//                card = s % 52; // Pick another if already chosen
+//                count = count + 1;
+//            end
+//            if (count < 52) begin
+//                card_array[card] = 1; // Mark card as chosen
+//            end
+//            else begin
+//                card = 1; // Indicate failure to find a unique card
+//            end
+//             randCard = card;
+//         end
+//     endfunction   
 
 
 
@@ -596,13 +595,39 @@ endfunction
     
     integer s = 0;
     function integer rand;
-        input _s;
+        input integer max;
     begin
         s = (s + 36) * 253;
         s = s ^ ((s * 76) >> 13);
         s = (s + 49) * 17;
         s[31] = 0;
-        rand = s % 52;
+        rand = s % max;
+    end
+    endfunction
+    
+    reg [51:0] card_array = 0;
+    function integer randcard;
+        input integer _x;
+        integer card;
+    begin        
+        card = rand(52);
+        if (card_array[card]) begin
+            if (!card_array[(card + 1) % 52])
+                card = (card + 1) % 52;
+            else if (!card_array[(card + 2) % 52])
+                card = (card + 2) % 52;
+            else if (!card_array[(card + 3) % 52])
+                card = (card + 3) % 52;
+            else if (!card_array[(card + 4) % 52])
+                 card = (card + 4) % 52;
+            else if (!card_array[(card + 5) % 52])
+                 card = (card + 5) % 52;
+            else
+                card = (card + 6) % 52;
+        end
+            
+        card_array[card] = 1;
+        randcard = card;
     end
     endfunction
      
@@ -626,13 +651,15 @@ endfunction
                     //rndStart = rndStart + 1;
         if(rndStart == 0 && initialize == 0) begin
         
-        p10 = rand(s);//randCard(counter, card_array);
-        p11 = rand(s);//randCard(counter+1, card_array);
-        p20 = rand(s);//randCard(counter+2, card_array);
-        p21 = rand(s);//randCard(counter+3, card_array);
-        c1 = rand(s);//randCard(counter+4, card_array);
-        c2 = rand(s);//randCard(counter+5, card_array);
-        c3 = rand(s);//randCard(counter+6, card_array);
+            card_array = 0;
+            
+            p10 = randcard(s);
+            p11 = randcard(s);
+            p20 = randcard(s);
+            p21 = randcard(s);
+            c1 = randcard(s);
+            c2 = randcard(s);
+            c3 = randcard(s);
            // p1[0] = 36; //randCard(counter, card_array);
             //p1[1] =43;// randCard(counter + 1, card_array);
             
