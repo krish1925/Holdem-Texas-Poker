@@ -1,8 +1,8 @@
 module basys3 (/*AUTOARG*/
    // Outputs
-   RsTx, an, seg,//led,
+   RsTx, an, seg, led,
    // Inputs
-   RsRx, sw, btnS, btnR, clk, led//btnD
+   RsRx, sw, btnS, btnR, clk//, led//btnD
    );
 
 `include "constants.v"
@@ -178,7 +178,8 @@ module basys3 (/*AUTOARG*/
    .clk (clk),
    .valid (inst_vld_d[0]),
    //bet_valid (validation), //new
-   .busy (uart_tx_busy)
+   .busy (uart_tx_busy),
+   ._led (led)
    );
    
    uart_top uart_top_ (// Outputs

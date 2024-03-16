@@ -4,10 +4,11 @@ module poker(
     //Outputs
     playerout,
     display_value,
+    _led,
     //Inputs
     clk,
     valid,
-    busy, sw, led
+    busy, sw
     );
     output [23:0] playerout;
     output reg [31:0] display_value = 0;
@@ -15,7 +16,7 @@ module poker(
     input        clk;
     input valid;
     input busy;
-    output [15:0] led;
+    output reg [15:0] _led;
 
     
 
@@ -603,19 +604,19 @@ endfunction
     end
     
     always @ (posedge valid) begin
-        if (rndStart == 6)
+        if (rndStart == 7)
             rndStart = 0;
         //if (rndStart != 0)
                     //rndStart = rndStart + 1;
         if(rndStart == 0 && initialize == 0) begin
         
-        p10 = randCard(counter, card_array);
-        p11 = randCard(counter+1, card_array);
-        p20 = randCard(counter+2, card_array);
-        p21 = randCard(counter+3, card_array);
-        c1 = randCard(counter+4, card_array);
-        c2 = randCard(counter+5, card_array);
-        c3 = randCard(counter+6, card_array);
+        p10 = 5;//randCard(counter, card_array);
+        p11 = 6;//randCard(counter+1, card_array);
+        p20 = 3;//randCard(counter+2, card_array);
+        p21 = 4;//randCard(counter+3, card_array);
+        c1 = 0;//randCard(counter+4, card_array);
+        c2 = 1;//randCard(counter+5, card_array);
+        c3 = 2;//randCard(counter+6, card_array);
            // p1[0] = 36; //randCard(counter, card_array);
             //p1[1] =43;// randCard(counter + 1, card_array);
             
@@ -744,11 +745,11 @@ endfunction
 
                if(winner == 1) begin
                    money_p1 = money_p1 + pot;
-                   led[3:0] <= 4'b0001;
-                   
+                   _led[3:0] <= 4'b0001;
                end
                else begin
                    money_p2 = money_p2 + pot;
+                   _led[3:0] <= 4'b0010;                  
                end
                
             end
