@@ -7,6 +7,7 @@ module poker(
     _led,
     //Inputs
     clk,
+    rst,
     valid,
     busy, _sw,
     display_toggle
@@ -14,7 +15,8 @@ module poker(
     output [23:0] playerout;
     output reg [31:0] display_value = 0;
 
-    input  clk;
+    input        clk;
+    input rst;
     input valid;
     input busy;
 
@@ -86,58 +88,6 @@ module poker(
     integer p1_score = 1234;
     integer p2_score = 5678;
 
-
-//    function randCard;
-//        input [51:0] card_array;
-//        integer card;
-//        integer count;
-//        begin
-//            card = $random % 52 + 1;
-//            //while(card_array[card] == 1 & count < 100) begin
-//            //    card = $random % 52 + 1;
-//            //    count = count + 1;
-//            //end
-//            card_array[card] = 1;
-//            randCard = card;
-//        end
-//    endfunction
-
-//    function cardConvert;
-//        input integer card;
-//        integer value;
-//        integer suit;
-//        begin
-//            value = card % 13;
-//            suit = card / 13;
-//            $display("%b", {4'b0011, suit[3:0]});
-//            cardConvert = {4'b0011, suit[3:0]};//{4'b0001, 4'b0011};//
-//        end
-//    endfunction
-
-
-
-
-
-
-//function integer sortcards;
-//            input integer cards [6:0];
-//           // input integer [6:0] cards;
-//            integer i, j, temp;
-
-//            begin
-//                // Sort cards in ascending order
-//                for (i = 0; i < 4; i = i + 1) begin
-//                    for (j = 0; j < 4 - i; j = j + 1) begin
-//                        if (cards[j] > cards[j + 1]) begin
-//                            temp = cards[j];
-//                            cards[j] = cards[j + 1];
-//                            cards[j + 1] = temp;
-//                        end
-//                    end
-//                end
-//            end
-//            sortcards = cards
-//    endfunction
 
 // function to check if there is a royal flush return 20 if not found
     function integer checkroyalflush;
@@ -543,60 +493,6 @@ module poker(
 endfunction
 
 
-    
-//   function integer randCard;
-//        input integer s;
-//        input [51:0] card_array;
-//        integer card, count;
-//        begin
-//            count = 0;
-//            //card = $random(s) % 52; // Pick a random card
-//            card = s % 52;
-//            while ((card_array[card] == 1) && (count < 52)) begin
-//                card = s % 52; // Pick another if already chosen
-//                count = count + 1;
-//            end
-//            if (count < 52) begin
-//                card_array[card] = 1; // Mark card as chosen
-//            end
-//            else begin
-//                card = 1; // Indicate failure to find a unique card
-//            end
-//             randCard = card;
-//         end
-//     endfunction
-
-
-
-    //new randcard function:
-//    function integer randCard;
-//        input integer s;
-//        input [51:0] card_array;
-//        output [51:0] card_array_out;
-//        integer card, count;
-//        reg [51:0] card_array_temp;
-//        begin
-//            count = 0;
-//            card = s % 52; // Initial card selection attempt
-//            card_array_temp = card_array; // Copy input card_array to a temporary variable for modification
-
-//            // Loop until an unselected card is found or we've attempted all cards
-//            while ((card_array_temp[card] == 1) && (count < 52)) begin
-//                card = (card + 1) % 52; // Try the next card
-//                count = count + 1; // Increment the attempt count
-//            end
-
-//            if (count < 52) begin
-//                card_array_temp[card] = 1; // Mark card as chosen in the temporary array
-//                randCard = card; // Return the chosen card
-//            end else begin
-//                randCard = -1; // Indicate failure to find a unique card
-//            end
-//            card_array_out = card_array_temp; // Output the updated card array
-//        end
-//    endfunction
-
-
     function [7:0] cardConvert;
         input integer card;
         integer value, suit;
@@ -649,17 +545,10 @@ endfunction
         randcard = card;
     end
     endfunction
-     
-    initial begin
-        card_array = 0;
-        seed = 12345;
-        //counter = 0;
-        player = 0;
 
     initial begin
         card_array = 0;
         seed = 12345;
-        counter = 0;
         player = 1;
         money_p1 = 100;
         money_p2 = 100;
@@ -670,7 +559,11 @@ endfunction
         pot = 0;
     end
 
-    always @ (posedge valid) begin
+    always @ (posedge valid | rst) begin
+            if (rst) begin //Reset Block
+                rndStart = -1;
+                card_array = 0;
+            end
         //if (rndStart == 4) begin
         //    rndStart = 0;
         //    initialize = 0;
@@ -685,8 +578,6 @@ endfunction
                     card_array = 0;
         end
 
-        //if (rndStart != 0)
-                    //rndStart = rndStart + 1;
         if(rndStart == 0 && initialize == 0) begin
         
             card_array = 0;
@@ -699,24 +590,9 @@ endfunction
             c2 = randcard(s);
             c3 = randcard(s);
           
-           // p1[0] = 36; //randCard(counter, card_array);
-            //p1[1] =43;// randCard(counter + 1, card_array);
-
-           // p2[0] = 34 ;// randCard(counter + 2, card_array);
-           // p2[1] = 25;// randCard(counter + 3, card_array);
-
-           // community[0] = 11;// randCard(counter + 4, card_array);
-         //   community[1] = 21;//randCard(counter + 5, card_array);
-           // community[2] = 31;//randCard(counter + 6, card_array);
-            //community[3] = randCard(counter + 7, card_array);
-            //community[4] = randCard(counter + 8, card_array);
-            //rndStart = 1;
             initialize = 1;
-           // $display("rndStart = %d: Community cards after assignment: %d, %d, %d", rndStart, community[0], community[1], community[2]);
-
-
         end
-                   // $display("Beginning of always block - rndStart = %d, Community: %d, %d, %d", rndStart, community[0], community[1], community[2]);
+                   
         case (rndStart)
             0: begin
                 bet_player1 = 0;
@@ -909,113 +785,24 @@ endfunction
                
             end
         endcase
-       // $display("End of always block - rndStart = %d, Community: %d, %d, %d", rndStart, community[0], community[1], community[2]);
         rndStart = rndStart + 1;
-//        playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
-//        if (rndStart < 2) begin
-//            if (rndStart == 0) begin 
-//                currp[0] = community[0];
-//                currp[1] = community[1];
-//                currp[2] = community[2];
-//            end
-//            else if ()
-//                currp[0] = p1[0];
-//                currp[1] = p1[1];
-//                currp[2] = -1;
-//            end
-//            //currp[2] = 24;
-//        end
-//        else begin
-//            if (rndStart == 2) begin 
-//                currp[0] = community[0];
-//                currp[1] = community[1];
-//                currp[2] = community[2];
-//            end
-//            else begin
-//                currp[0] = p2[0];
-//                currp[1] = p2[1];
-//                currp[2] = -1;
-//            end
-//        end
-        
-        //currp[1] = player ? p1[1] : p2[1]; 
-        //currp[0] = player ? p1[0] : p2[0];
-        //player = ~player;
-        
-//         if(rndStart == 5) begin
-              
-               
-//               // Check royal flush first
-//               p1_hand_value = checkroyalflush(p1, community);
-//               p2_hand_value = checkroyalflush(p2, community);
-               
-//               if (p1_hand_value != 20 || p2_hand_value != 20) begin
-//                   if (p1_hand_value == 20) winner_value = 2;
-//                   else if (p2_hand_value == 20) winner_value = 1;
-//                   else if (p1_hand_value > p2_hand_value) winner_value = 1;
-//                   else if (p1_hand_value < p2_hand_value) winner_value = 2;
-//                   else winner_value = $random % 2 == 0 ? 1 : 2; // Randomly assign if values are equal
-//               end
-//               else begin
-//                   // Check straight flush
-//                   p1_hand_value = checkstraightflush(p1, community);
-//                   p2_hand_value = checkstraightflush(p2, community);
-                   
-//                   if (p1_hand_value != 20 || p2_hand_value != 20) begin
-//                       if (p1_hand_value == 20) winner_value = 2;
-//                       else if (p2_hand_value == 20) winner_value = 1;
-//                       else if (p1_hand_value > p2_hand_value) winner_value = 1;
-//                       else if (p1_hand_value < p2_hand_value) winner_value = 2;
-//                       else winner_value = $random % 2 == 0 ? 1 : 2; // Randomly assign if values are equal
-//                   end
-//                   else begin
-//                       // Add similar checks for other hands...
-//                   end
-//               end
-               
-//               // Update winner output
-//               winner = winner_value;
-//               end
-               
-        
        end
        
        assign playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
         
-        always @ (posedge display_toggle | valid) begin
-            if (valid)
+        always @ (posedge display_toggle | valid | rst) begin
+            if (rst | valid)
                 display_state <= 0;
             else
                 display_state <= (display_state + 1) % 3;
         end
 
-        always @* begin
-            case (display_state)
-                0: display_value = ~player ? p1_money : p2_money;
-                1: display_value = ~player ? p1_bet : p2_bet;
-                2: display_value = bet;
-            endcase
-        end
-       
-//       reg[31:0] counter_reg;
-       
-//       assign counter = (counter_reg + 1);
-       
-//       always @ (posedge clk) begin
-//        counter_reg <= counter;
-//       end
-//       always @ (posedge clk) begin
-//        counter = counter + 1;
-//        if (counter + 10 < 0) begin
-//            counter = 0;
+//        always @* begin
+//            case (display_state)
+//                0: display_value = ~player ? p1_money : p2_money;
+//                1: display_value = ~player ? p1_bet : p2_bet;
+//                2: display_value = bet;
+//            endcase
 //        end
-//       end
-       
-//       reg [23:0] playerout_reg;
-//       always @(posedge clk) begin
-//           playerout_reg <= {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
-//       end
-       
-//       assign playerout = playerout_reg;
        
 endmodule

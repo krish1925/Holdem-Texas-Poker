@@ -46,9 +46,9 @@ module uart_top (/*AUTOARG*/
    integer               state;
    integer               clear_screen_state = 0;
    
-      reg [7:0]            card1, card2;
-      reg                  pick_card;
-      reg [51:0]           card_array;
+//      reg [7:0]            card1, card2;
+//      reg                  pick_card;
+//      reg [51:0]           card_array;
 
 
    assign o_tx_busy = (state!=stIdle);
