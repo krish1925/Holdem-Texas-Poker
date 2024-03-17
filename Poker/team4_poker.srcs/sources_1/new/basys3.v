@@ -2,7 +2,7 @@ module basys3 (/*AUTOARG*/
    // Outputs
    RsTx, an, seg, led,
    // Inputs
-   RsRx, sw, btnS, btnR, clk//, led//btnD
+   RsRx, sw, btnS, btnR, clk, //btnD//, led//btnD
    );
 
 `include "constants.v"
@@ -21,6 +21,7 @@ module basys3 (/*AUTOARG*/
    //output [7:0] led;
    input        btnS;                 // single-step instruction
    input        btnR;                 // arst
+   
   
   
   // input       btnD;                 // input for bet  //new
@@ -43,6 +44,9 @@ module basys3 (/*AUTOARG*/
    wire [31:0] display_value;
 
 
+
+
+
 //   wire validation;  //new
 //   wire  arst_ii; //new 
 //   reg [1:0] arst_foo; //new
@@ -61,6 +65,10 @@ module basys3 (/*AUTOARG*/
    reg [7:0]   inst_cnt;
    
    reg [1:0] inst_vld_d;
+
+
+  
+
    //reg btn;
    
    // ===========================================================================
@@ -180,6 +188,7 @@ module basys3 (/*AUTOARG*/
    //bet_valid (validation), //new
    .busy (uart_tx_busy),
    ._led (led)
+   ._sw (sw)
    );
    
    uart_top uart_top_ (// Outputs

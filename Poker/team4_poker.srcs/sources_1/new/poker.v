@@ -8,19 +8,19 @@ module poker(
     //Inputs
     clk,
     valid,
-    busy, sw
+    busy, _sw
     );
     output [23:0] playerout;
     output reg [31:0] display_value = 0;
     
-    input        clk;
+    input  clk;
     input valid;
     input busy;
     output reg [15:0] _led;
 
     
 
-    input [15:0] sw;
+    input [15:0] _sw;
 
 
     
@@ -35,11 +35,15 @@ module poker(
     integer bet_player2;
     integer money_p1;
     integer money_p2;
+    integer p1_total_bet;
+    integer p2_total_bet;
+
     integer pot;
     integer initialize;
 
 
     integer winner;
+    integer player;
     
     integer p11;
     integer p10;
@@ -596,16 +600,28 @@ endfunction
         card_array = 0;
         seed = 12345;
         counter = 0;
-        player = 0;
+        player = 1;
         money_p1 = 100;
         money_p2 = 100;
         initialize = 0;
         rndStart = 0;
+        p1_total_bet = 0;
+        p2_total_bet = 0;
+        pot = 0;
     end
     
     always @ (posedge valid) begin
-        if (rndStart == 7)
+        if (rndStart == 8)
             rndStart = 0;
+            pot = 0;
+            p1_total_bet = 0;
+            p2_total_bet = 0;
+            p1_score = 20;
+            p2_score = 20;
+            card_array = 0;
+
+
+
         //if (rndStart != 0)
                     //rndStart = rndStart + 1;
         if(rndStart == 0 && initialize == 0) begin
@@ -637,6 +653,9 @@ endfunction
                    // $display("Beginning of always block - rndStart = %d, Community: %d, %d, %d", rndStart, community[0], community[1], community[2]);
         case (rndStart)
             0: begin
+                bet_player1 = 0;
+                bet_player2 = 0;
+
                 currp1 = c1;
                 currp2 = c2;
                 currp3 = c3;
@@ -664,24 +683,83 @@ endfunction
                 currp1 = -1;
                 currp2 = -1;
                 currp3 = -1;
-            end
-            5:
-                begin 
-                    //initial bet round
+                player = 1;
+
+                 //initial bet round
                     pot = 0;
                     bet_player1 = 0;
                     bet_player2 = 0;
                     money_p1 = money_p1 - 5; //min bet
                     money_p2 = money_p2 - 5; //min bet
                     pot = pot + 10;
+            end
+            5:
+                begin 
+                   currp1 = 8'b01011101;
+                   currp2 = 8'b01011101; //displays p1
+                   currp3 = 8'b01011101;
+                   
+                    // player 1 turn
+                    //bet amount is calculated from switches
+                    bet_player1 = _sw[15:0];
+                    if(bet_player1 < bet_player2) 
+                        display_value = bet_player2 - bet_player1; //display the value they have to bet more
+                    else
+                    display_value = 0; // valid bet?
 
-                    while(bet_player1  !=bet_player2)begin
-                     bet_player1 = bet_player2;
+                    if(money_p1 < bet_player1)begin
+                        //if the bet is higher than the money the player has, the player is asked to bet again
+                        rndStart = rndStart - 1;
+                        display_value = 999; //display error check if this is valid or correct @ justin
+                    end
+                    else begin
+                        //if the bet is valid, the bet is added to the pot and the player's money is updated
+                        pot = pot + bet_player1;
+                        money_p1 = money_p1 - bet_player1;
+                        p1_total_bet = p1_total_bet + bet_player1;
+                        if (p1_total_bet < p2_total_bet)begin
+                            rndStart = rndStart - 1; //if the total bet of the players is not equal, the player with the lower bet is asked to bet again
+                        end
+                    end
+            
+                end
+
+             6:
+                begin 
+                    currp1 = 8'b01010000; //p2
+                   currp2 = 8'b01010000;  //displays p2
+                   currp3 =  8'b01010000;
+
+                    // player 2 turn
+                    //bet amount is calculated from switches
+                    bet_player2 = _sw[15:0];
+                    if(bet_player2 < bet_player1) 
+                        display_value = bet_player1 - bet_player2; //display the value they have to bet more
+                    else
+                    display_value = 0; // valid bet?
+
+                    
+                    if(money_p2 < bet_player2)begin
+                        //if the bet is higher than the money the player has, the player is asked to bet again
+                        rndStart = rndStart - 1;
+                        display_value = 999; //display error check if this is valid or correct @ justin
                      end
+                    else begin
+                        //if the bet is valid, the bet is added to the pot and the player's money is updated
+                        pot = pot + bet_player2;
+                        money_p2 = money_p2 - bet_player2;
+                        p2_total_bet = p2_total_bet + bet_player2;
+                        if(p2_total_bet < p1_total_bet)begin
+                           // if the total bet of the players is not equal, the player with the lower bet is asked to bet again
+                            rndStart = rndStart - 1;
+                        end
+                    end
+                    
+                    
                     //make it go through the loop until both players have the same amount of money,a dnit sohuld go through this once
                     
                 end
-            6:
+            7:
             begin 
                 // Check royal flush first
                 p1_score = checkroyalflush(p10, p11, c1, c2, c3);
@@ -737,11 +815,22 @@ endfunction
                     else if(p2_score == 20) winner = 1;
                     else if(p1_score > p2_score) winner = 1;
                     else if(p1_score < p2_score) winner = 2;
-                    else winner = 1; // Randomly assign if values are equal
+                    else 
+                        begin
+                            if(p10 > p20 && p10 > p21) 
+                                winner = 1;
+                            else if(p11 > p20 && p11 > p21)
+                                winner = 1;
+                            if(p20 > p10 && p20 > p11) 
+                                winner = 2;
+                            else if(p21 > p10 && p21 > p11)
+                                winner = 2;
+                            else winner = 2; // Randomly assign if values are equal should not happen
+                    end
+
                 end
-                else begin
-                    winner = 2; // Randomly assign if values are equal should not happen
-                end
+                else 
+                    winner = 1; // Randomly assign if values are equal
 
                if(winner == 1) begin
                    money_p1 = money_p1 + pot;
