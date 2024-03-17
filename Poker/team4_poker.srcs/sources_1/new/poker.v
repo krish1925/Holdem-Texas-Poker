@@ -82,6 +82,7 @@ module poker(
     integer p2_bet = 0; //Current bet of player 2 
     integer bet = 100; //Current bet that players must match
     
+
     integer display_state = 0; //Current state of 7-segment display
 
 
@@ -563,12 +564,19 @@ endfunction
             if (rst) begin //Reset Block
                 rndStart = -1;
                 card_array = 0;
+                pot = 0;
+                p1_total_bet = 0;
+                p2_total_bet = 0;
+                p1_score = 20;
+                p2_score = 20;
+                money_p1 = 100;
+                money_p2 = 100;
             end
         //if (rndStart == 4) begin
         //    rndStart = 0;
         //    initialize = 0;
         //end
-        if (rndStart == 8) begin
+        if (rndStart == 10) begin
                     rndStart = 0;
                     pot = 0;
                     p1_total_bet = 0;
@@ -576,6 +584,9 @@ endfunction
                     p1_score = 20;
                     p2_score = 20;
                     card_array = 0;
+                    winner = -1;
+                    initialize = 0;
+
         end
 
         if(rndStart == 0 && initialize == 0) begin
@@ -608,18 +619,21 @@ endfunction
                 currp2 = p11;
                 currp3 = -1;
                 player = 0;
+                display_state = 0;
             end
             2: begin
                currp1 = c1;
                currp2 = c2;
                currp3 = c3;
                player = 1;
+
             end
             3: begin
                 currp1 = p20;
                 currp2 = p21;
                 currp3 = -1;
                 player = 1;
+                display_state = 0;
             end
             4 : begin
                 currp1 = -1;
@@ -629,29 +643,34 @@ endfunction
 
                  //initial bet round
                     pot = 0;
-                    bet_player1 = 0;
-                    bet_player2 = 0;
+                    bet_player1 = 5;
+                    bet_player2 = 5;
                     money_p1 = money_p1 - 5; //min bet
                     money_p2 = money_p2 - 5; //min bet
                     pot = pot + 10;
-            end
-            5:
-                begin
-                   currp1 = 8'b01011101;
-                   currp2 = 8'b01011101; //displays p1
-                   currp3 = 8'b01011101;
+                    p1_total_bet = 5;
+                    p2_total_bet = 5;
+                    display_state = 2; //value to match bets
 
+            end
+             5 : begin
+                currp1 = 8'b01011101;
+                currp2 = 8'b01011101; //displays p1
+                currp3 = 8'b01011101;
+                display_state = 1; //value to match bets
+
+            end
+            6:
+                begin
+                   
                     // player 1 turn
                     //bet amount is calculated from switches
                     bet_player1 = _sw[15:0];
-                    if(bet_player1 < bet_player2)
-                        display_value = bet_player2 - bet_player1; //display the value they have to bet more
-                    else
-                    display_value = 0; // valid bet?
-
+                    display_state = 2;
+                    
                     if(money_p1 < bet_player1)begin
                         //if the bet is higher than the money the player has, the player is asked to bet again
-                        rndStart = rndStart - 1;
+                        rndStart = rndStart - 2;
                         display_value = 999; //display error check if this is valid or correct @ justin
                     end
                     else begin
@@ -660,30 +679,27 @@ endfunction
                         money_p1 = money_p1 - bet_player1;
                         p1_total_bet = p1_total_bet + bet_player1;
                         if (p1_total_bet < p2_total_bet)begin
-                            rndStart = rndStart - 1; //if the total bet of the players is not equal, the player with the lower bet is asked to bet again
+                            rndStart = rndStart - 2; //if the total bet of the players is not equal, the player with the lower bet is asked to bet again
                         end
+                        bet_player1 = 0;
+                        
                     end
 
                 end
+            7 : begin
+                currp1 = 8'b01010000; //p2
+                currp2 = 8'b01010000;  //displays p2
+                currp3 = 8'b01010000;
+                display_state = 1; //value to match bets
+            end
 
-             6:
+             8:
                 begin
-                    currp1 = 8'b01010000; //p2
-                   currp2 = 8'b01010000;  //displays p2
-                   currp3 =  8'b01010000;
-
+                    display_state = 2;
                     // player 2 turn
-                    //bet amount is calculated from switches
-                    bet_player2 = _sw[15:0];
-                    if(bet_player2 < bet_player1)
-                        display_value = bet_player1 - bet_player2; //display the value they have to bet more
-                    else
-                    display_value = 0; // valid bet?
-
-
                     if(money_p2 < bet_player2) begin
                         //if the bet is higher than the money the player has, the player is asked to bet again
-                        rndStart = rndStart - 1;
+                        rndStart = rndStart - 2;
                         display_value = 999; //display error check if this is valid or correct @ justin
                      end
                     else begin
@@ -693,15 +709,16 @@ endfunction
                         p2_total_bet = p2_total_bet + bet_player2;
                         if(p2_total_bet < p1_total_bet) begin
                            // if the total bet of the players is not equal, the player with the lower bet is asked to bet again
-                            rndStart = rndStart - 1;
+                            rndStart = rndStart - 2;
                         end
+                        bet_player2 = 0;
                     end
 
 
                     //make it go through the loop until both players have the same amount of money,a dnit sohuld go through this once
 
                 end
-            7:
+            9:
             begin
                 // Check royal flush first
                 p1_score = checkroyalflush(p10, p11, c1, c2, c3);
@@ -777,10 +794,16 @@ endfunction
                if(winner == 1) begin
                    money_p1 = money_p1 + pot;
                    _led[3:0] <= 4'b0001;
+                   currp1 = 8'b01011101;
+                    currp2 = 8'b01011101; //displays p1
+                    currp3 = 8'b01011101;
                end
                else begin
                    money_p2 = money_p2 + pot;
-                   _led[3:0] <= 4'b0010;                  
+                   _led[3:0] <= 4'b0010;
+                   currp1 = 8'b01010000; //p2
+                    currp2 = 8'b01010000;  //displays p2
+                    currp3 = 8'b01010000;                  
                end
                
             end
@@ -796,13 +819,42 @@ endfunction
             else
                 display_state <= (display_state + 1) % 3;
         end
+        
 
-//        always @* begin
-//            case (display_state)
-//                0: display_value = ~player ? p1_money : p2_money;
-//                1: display_value = ~player ? p1_bet : p2_bet;
-//                2: display_value = bet;
-//            endcase
-//        end
+       always @* begin
+           case (display_state)
+               0: display_value = ~player ? p1_money : p2_money;
+               1:
+               begin
+                if (player == 0)
+                    if(p1_total_bet < p2_total_bet)
+                        display_value = p2_total_bet - p1_total_bet;
+                    else
+                        display_value = 0;
+                else
+                    if(p2_total_bet < p1_total_bet)
+                        display_value = p1_total_bet - p2_total_bet;
+                    else
+                        display_value = 0;
+               end 
+                
+               //1: display_value = ~player ? p1_bet : p2_bet;
+               2:
+               begin
+                if (player == 0)
+                    if((p1_total_bet+ _sw[15:0]) < p2_total_bet)
+                        display_value = p2_total_bet - p1_total_bet - _sw[15:0];
+                    else
+                        display_value = 0;
+                else
+                    if((p2_total_bet + _sw[15:0]) < p1_total_bet)
+                        display_value = p1_total_bet - p2_total_bet - _sw[15:0];
+                    else
+                        display_value = 0;
+               end
+               3: 
+                display_value = pot;
+           endcase
+       end
        
 endmodule
