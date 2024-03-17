@@ -5,31 +5,26 @@ module basys3 (/*AUTOARG*/
    RsRx, sw, btnS, btnR, btnL, clk, //btnD
    );
 
-`include "constants.v"
+//`include "constants.v"
 
    wire [23:0] playerout;
 
    // USB-UART
    input        RsRx;
    output       RsTx;
-   //output reg [3:0] an;
-   //output reg [6:0] seg;
 
    // Misc.
    input  [15:0] sw;
    output [15:0] led;
-   //output [7:0] led;
    input        btnS;                 // advance turn
    input        btnR;                 // arst
    input        btnL;                 // toggle 7-segment
-  // input       btnD;                 // input for bet  //new
 
    // Logic
    input        clk;                  // 100MHz
 
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
-   wire [seq_width-1:0] seq_tx_data;         // From seq_ of seq.v
    wire                 seq_tx_valid;           // From seq_ of seq.v
    wire [7:0]           uart_rx_data;           // From uart_top_ of uart_top.v
    wire                 uart_rx_valid;          // From uart_top_ of uart_top.v
@@ -40,16 +35,6 @@ module basys3 (/*AUTOARG*/
    wire        arst_i;
    wire [17:0] clk_dv_inc;
    wire [31:0] display_value;
-
-
-
-
-
-//   wire validation;  //new
-//   wire  arst_ii; //new
-//   reg [1:0] arst_foo; //new
-
-
 
    reg [1:0]   arst_ff;
    reg [16:0]  clk_dv;
@@ -65,11 +50,6 @@ module basys3 (/*AUTOARG*/
 
    reg [1:0] inst_vld_d;
 
-
-
-
-   //reg btn;
-
    // ===========================================================================
    // Asynchronous Reset
    // ===========================================================================
@@ -82,20 +62,6 @@ module basys3 (/*AUTOARG*/
        arst_ff <= 2'b11;
      else
        arst_ff <= {1'b0, arst_ff[1]};
-
-
-  // ===========================================================================
-   // Asynchronous Bet Amount Signal validation
-   // ===========================================================================
-
-//   assign arst_ii = btnD;  //new
-//   assign validation = arst_foo[0]; //new
-
-//   always @ (posedge clk or posedge arst_i) //new
-//     if (arst_ii) //new
-//       arst_foo <= 2'b11; //new
-//     else //new
-//       arst_foo <= {1'b0, arst_foo[1]}; //new
 
    // ===========================================================================
    // 763Hz timing signal for clock enable
@@ -150,31 +116,6 @@ module basys3 (/*AUTOARG*/
      else if (inst_vld)
        inst_cnt <= inst_cnt + 1;
 
-    //if (btn == 1)
-    //    btn <= 0;
-
-   //assign led[7:0] = inst_cnt[7:0];
-
-
-//always @ (posedge step_d[0]) begin
-//     btn <= 1;
-//   end
-   // ===========================================================================
-   // Sequencer
-   // ===========================================================================
-
-//   seq seq_ (// Outputs
-//             .o_tx_data                 (seq_tx_data[seq_dp_width-1:0]),
-//             .o_tx_valid                (seq_tx_valid),
-//             // Inputs
-//             .i_tx_busy                 (uart_tx_busy),
-//             .i_inst                    (inst_wd[seq_in_width-1:0]),
-//             .i_inst_valid              (inst_vld),
-//             /*AUTOINST*/
-//             // Inputs
-//             .clk                       (clk),
-//             .rst                       (rst));
-
    // ===========================================================================
    // UART controller
    // ===========================================================================
@@ -186,7 +127,6 @@ module basys3 (/*AUTOARG*/
    //Inputs
    .clk (clk),
    .valid (inst_vld_d[0]),
-   //bet_valid (validation), //new
    .busy (uart_tx_busy),
    .display_toggle (step_e[1]),
    ._led (led),
@@ -196,8 +136,6 @@ module basys3 (/*AUTOARG*/
    uart_top uart_top_ (// Outputs
                        .o_tx            (RsTx),
                        .o_tx_busy       (uart_tx_busy),
-                       //.o_rx_data       (uart_rx_data[7:0]),
-                       //.o_rx_valid      (uart_rx_valid),
                        // Inputs
                        .i_rx            (RsRx),
                        .i_tx_data       (playerout),
