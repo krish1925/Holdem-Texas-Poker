@@ -4,23 +4,29 @@ module poker(
     //Outputs
     playerout,
     display_value,
+    _led,
     //Inputs
     clk,
     valid,
-    busy, sw,
+    busy, _sw,
     display_toggle
     );
     output [23:0] playerout;
     output reg [31:0] display_value = 0;
-    
-    input        clk;
+
+    input  clk;
     input valid;
     input busy;
 
-    input [15:0] sw;
-
     input display_toggle;
-    
+
+    output reg [15:0] _led;
+
+
+
+    input [15:0] _sw;
+
+
     integer p1 [1:0];
     integer p2 [1:0];
     integer currp1; //[2:0];
@@ -31,12 +37,16 @@ module poker(
     integer bet_player2;
     integer money_p1;
     integer money_p2;
+    integer p1_total_bet;
+    integer p2_total_bet;
+
     integer pot;
     integer initialize;
 
 
     integer winner;
-    
+    integer player;
+
     integer p11;
     integer p10;
     integer p21;
@@ -44,14 +54,14 @@ module poker(
     integer c1;
     integer c2;
     integer c3;
-    
-    
-    
+
+
+
      // Winner determination logic
       integer winner_value = 0;
       integer p1_hand_value = 20;
       integer p2_hand_value = 20;
-    
+
     integer community [4:0];
     integer rndStart = 0;
     
@@ -71,7 +81,12 @@ module poker(
     integer bet = 100; //Current bet that players must match
     
     integer display_state = 0; //Current state of 7-segment display
-    
+
+
+    integer p1_score = 1234;
+    integer p2_score = 5678;
+
+
 //    function randCard;
 //        input [51:0] card_array;
 //        integer card;
@@ -82,11 +97,11 @@ module poker(
 //            //    card = $random % 52 + 1;
 //            //    count = count + 1;
 //            //end
-//            card_array[card] = 1; 
+//            card_array[card] = 1;
 //            randCard = card;
 //        end
 //    endfunction
-    
+
 //    function cardConvert;
 //        input integer card;
 //        integer value;
@@ -123,8 +138,8 @@ module poker(
 //            end
 //            sortcards = cards
 //    endfunction
-    
-// function to check if there is a royal flush return 20 if not found 
+
+// function to check if there is a royal flush return 20 if not found
     function integer checkroyalflush;
         input integer playercard1;
         input integer playercard2;
@@ -141,22 +156,22 @@ module poker(
 
             // Check if it's a straight flush and if any card is an ace (card % 13 = 12)
             if (straightflush != 20) begin
-              
+
                 cards[0] = playercard1;
                 cards[1] = playercard2;
                 cards[2] = community1;
                 cards[3] = community2;
                 cards[4] = community3;
-
+                checkroyalflush = 20; // Not a royal flush
                 for (i = 0; i < 5; i = i + 1) begin
                     if ((cards[i] % 13) == 12) begin
                         checkroyalflush = 12; // Royal flush found
-                        return;
+
                     end
                 end
             end
 
-            checkroyalflush = 20; // Not a royal flush
+
         end
     endfunction
 
@@ -180,7 +195,7 @@ module poker(
             // Check if it's both a straight and a flush
             if (straight != 20 && flush != 20) begin
                 checkstraightflush = straight; // Straight flush found
-            end 
+            end
             else begin
                 checkstraightflush = 20; // Not a straight flush
             end
@@ -217,19 +232,18 @@ module poker(
                     end
                 end
             end
+            check4ofakind = 20; // No 4 of a kind
 
             // Check if last 4 cards are equal
             if ((cards[1] == cards[2]) && (cards[2] == cards[3]) && (cards[3] == cards[4])) begin
                 check4ofakind = cards[2]; // 4 of a kind found
-                return;
             end
 
             // Check if first 4 cards are equal
             if ((cards[0] == cards[1]) && (cards[1] == cards[2]) && (cards[2] == cards[3])) begin
                 check4ofakind = cards[2]; // 4 of a kind found
-                return;
             end
-            check4ofakind = 20; // No 4 of a kind
+
         end
     endfunction
 
@@ -265,19 +279,18 @@ module poker(
                 end
             end
 
+            checkfullhouse = 20; // No full house
+
             // Check if first three cards and then the other two cards are equal
             if ((cards[0] == cards[1]) && (cards[1] == cards[2]) && (cards[3] == cards[4])) begin
                 checkfullhouse = cards[3]; // Full house found
-                return;
             end
 
             // Check if first two cards and then the last three cards are equal
             if ((cards[0] == cards[1]) && (cards[2] == cards[3]) && (cards[3] == cards[4])) begin
                 checkfullhouse = cards[1]; // Full house found
-                return;
             end
 
-            checkfullhouse = 20; // No full house
         end
     endfunction
 
@@ -337,16 +350,16 @@ module poker(
                     end
                 end
             end
+            checkstraight = cards[4];
 
             // Check if cards are in ascending order
             for (i = 0; i < 4; i = i + 1) begin
                 if (cards[i] + 1 != cards[i + 1]) begin
                     checkstraight = 20; // Not in ascending order
-                    return;
                 end
             end
 
-            checkstraight = cards[4]; // In ascending order
+ // In ascending order
         end
     endfunction
 
@@ -381,23 +394,21 @@ module poker(
                     end
                 end
             end
+            checkthreeofakind = 20; // No three of a kind
 
             // Check if first three cards are equal
             if ((cards[0] == cards[1]) && (cards[1] == cards[2])) begin
                 checkthreeofakind = cards[2]; // Three of a kind found
-                return;
             end
             // Check if middle three cards are equal
             if ((cards[1] == cards[2]) && (cards[2] == cards[3])) begin
                 checkthreeofakind = cards[2]; // Three of a kind found
-                return;
             end
             // Check if end three cards are equal
             if ((cards[2] == cards[3]) && (cards[3] == cards[4])) begin
                 checkthreeofakind = cards[2]; // Three of a kind found
-                return;
             end
-            checkthreeofakind = 20; // No three of a kind
+
         end
     endfunction
 
@@ -433,6 +444,7 @@ module poker(
                     end
                 end
             end
+            checktwopair = 20; // No two pair
 
             // Check if the first pair exists
             if ((cards[0] == cards[1]) || (cards[1] == cards[2])) begin
@@ -445,11 +457,10 @@ module poker(
                         checktwopair = high1; // Two pair found
                     else
                         checktwopair = high2;
-                    return;
                 end
             end
 
-            checktwopair = 20; // No two pair
+
         end
     endfunction
 
@@ -483,16 +494,16 @@ module poker(
                     end
                 end
             end
+            checktwoofakind = 20; // No two of a kind
 
             // Check adjacent cards for two of a kind
             for (i = 0; i < 4; i = i + 1) begin
                 if (cards[i] == cards[i + 1]) begin
                     checktwoofakind = cards[i]; // Two of a kind found
-                    return;
                 end
             end
 
-            checktwoofakind = 20; // No two of a kind
+
         end
     endfunction
 
@@ -532,8 +543,6 @@ module poker(
 endfunction
 
 
-
-
     
 //   function integer randCard;
 //        input integer s;
@@ -555,11 +564,11 @@ endfunction
 //            end
 //             randCard = card;
 //         end
-//     endfunction   
+//     endfunction
 
 
 
-    //new randcard function: 
+    //new randcard function:
 //    function integer randCard;
 //        input integer s;
 //        input [51:0] card_array;
@@ -586,8 +595,8 @@ endfunction
 //            card_array_out = card_array_temp; // Output the updated card array
 //        end
 //    endfunction
-   
-    
+
+
     function [7:0] cardConvert;
         input integer card;
         integer value, suit;
@@ -646,17 +655,36 @@ endfunction
         seed = 12345;
         //counter = 0;
         player = 0;
+
+    initial begin
+        card_array = 0;
+        seed = 12345;
+        counter = 0;
+        player = 1;
         money_p1 = 100;
         money_p2 = 100;
         initialize = 0;
         rndStart = 0;
+        p1_total_bet = 0;
+        p2_total_bet = 0;
+        pot = 0;
     end
-    
+
     always @ (posedge valid) begin
-        if (rndStart == 4) begin
-            rndStart = 0;
-            initialize = 0;
+        //if (rndStart == 4) begin
+        //    rndStart = 0;
+        //    initialize = 0;
+        //end
+        if (rndStart == 8) begin
+                    rndStart = 0;
+                    pot = 0;
+                    p1_total_bet = 0;
+                    p2_total_bet = 0;
+                    p1_score = 20;
+                    p2_score = 20;
+                    card_array = 0;
         end
+
         //if (rndStart != 0)
                     //rndStart = rndStart + 1;
         if(rndStart == 0 && initialize == 0) begin
@@ -670,12 +698,13 @@ endfunction
             c1 = randcard(s);
             c2 = randcard(s);
             c3 = randcard(s);
+          
            // p1[0] = 36; //randCard(counter, card_array);
             //p1[1] =43;// randCard(counter + 1, card_array);
-            
+
            // p2[0] = 34 ;// randCard(counter + 2, card_array);
            // p2[1] = 25;// randCard(counter + 3, card_array);
-            
+
            // community[0] = 11;// randCard(counter + 4, card_array);
          //   community[1] = 21;//randCard(counter + 5, card_array);
            // community[2] = 31;//randCard(counter + 6, card_array);
@@ -685,11 +714,14 @@ endfunction
             initialize = 1;
            // $display("rndStart = %d: Community cards after assignment: %d, %d, %d", rndStart, community[0], community[1], community[2]);
 
-             
+
         end
                    // $display("Beginning of always block - rndStart = %d, Community: %d, %d, %d", rndStart, community[0], community[1], community[2]);
         case (rndStart)
             0: begin
+                bet_player1 = 0;
+                bet_player2 = 0;
+
                 currp1 = c1;
                 currp2 = c2;
                 currp3 = c3;
@@ -717,31 +749,165 @@ endfunction
                 currp1 = -1;
                 currp2 = -1;
                 currp3 = -1;
-            end
-            5:
-                begin 
-                    //initial bet round
+                player = 1;
+
+                 //initial bet round
                     pot = 0;
                     bet_player1 = 0;
                     bet_player2 = 0;
                     money_p1 = money_p1 - 5; //min bet
                     money_p2 = money_p2 - 5; //min bet
                     pot = pot + 10;
-
-                    while(bet_player1  !=bet_player2)begin
-                     bet_player1 = bet_player2;
-                     end
-                    //make it go through the loop until both players have the same amount of money,a dnit sohuld go through this once
-                    
-                end
-            6:
-            begin 
-
-               winner = 1; // winner detection here
-               initialize = 0;
-               rndStart = -1;
             end
+            5:
+                begin
+                   currp1 = 8'b01011101;
+                   currp2 = 8'b01011101; //displays p1
+                   currp3 = 8'b01011101;
 
+                    // player 1 turn
+                    //bet amount is calculated from switches
+                    bet_player1 = _sw[15:0];
+                    if(bet_player1 < bet_player2)
+                        display_value = bet_player2 - bet_player1; //display the value they have to bet more
+                    else
+                    display_value = 0; // valid bet?
+
+                    if(money_p1 < bet_player1)begin
+                        //if the bet is higher than the money the player has, the player is asked to bet again
+                        rndStart = rndStart - 1;
+                        display_value = 999; //display error check if this is valid or correct @ justin
+                    end
+                    else begin
+                        //if the bet is valid, the bet is added to the pot and the player's money is updated
+                        pot = pot + bet_player1;
+                        money_p1 = money_p1 - bet_player1;
+                        p1_total_bet = p1_total_bet + bet_player1;
+                        if (p1_total_bet < p2_total_bet)begin
+                            rndStart = rndStart - 1; //if the total bet of the players is not equal, the player with the lower bet is asked to bet again
+                        end
+                    end
+
+                end
+
+             6:
+                begin
+                    currp1 = 8'b01010000; //p2
+                   currp2 = 8'b01010000;  //displays p2
+                   currp3 =  8'b01010000;
+
+                    // player 2 turn
+                    //bet amount is calculated from switches
+                    bet_player2 = _sw[15:0];
+                    if(bet_player2 < bet_player1)
+                        display_value = bet_player1 - bet_player2; //display the value they have to bet more
+                    else
+                    display_value = 0; // valid bet?
+
+
+                    if(money_p2 < bet_player2) begin
+                        //if the bet is higher than the money the player has, the player is asked to bet again
+                        rndStart = rndStart - 1;
+                        display_value = 999; //display error check if this is valid or correct @ justin
+                     end
+                    else begin
+                        //if the bet is valid, the bet is added to the pot and the player's money is updated
+                        pot = pot + bet_player2;
+                        money_p2 = money_p2 - bet_player2;
+                        p2_total_bet = p2_total_bet + bet_player2;
+                        if(p2_total_bet < p1_total_bet) begin
+                           // if the total bet of the players is not equal, the player with the lower bet is asked to bet again
+                            rndStart = rndStart - 1;
+                        end
+                    end
+
+
+                    //make it go through the loop until both players have the same amount of money,a dnit sohuld go through this once
+
+                end
+            7:
+            begin
+                // Check royal flush first
+                p1_score = checkroyalflush(p10, p11, c1, c2, c3);
+                p2_score = checkroyalflush(p20, p21, c1, c2, c3);
+                if(p1_score == 20 && p2_score == 20) begin
+                    // Check straight flush
+                    p1_score = checkstraightflush(p10, p11, c1, c2, c3);
+                    p2_score = checkstraightflush(p20, p21, c1, c2, c3);
+                    if(p1_score == 20 && p2_score == 20) begin
+                        // Check 4 of a kind
+                        p1_score = check4ofakind(p10, p11, c1, c2, c3);
+                        p2_score = check4ofakind(p20, p21, c1, c2, c3);
+                        if(p1_score == 20 && p2_score == 20) begin
+                            // Check full house
+                            p1_score = checkfullhouse(p10, p11, c1, c2, c3);
+                            p2_score = checkfullhouse(p20, p21, c1, c2, c3);
+                            if(p1_score == 20 && p2_score == 20) begin
+                                // Check flush
+                                p1_score = checkflush(p10, p11, c1, c2, c3);
+                                p2_score = checkflush(p20, p21, c1, c2, c3);
+                                if(p1_score == 20 && p2_score == 20) begin
+                                    // Check straight
+                                    p1_score = checkstraight(p10, p11, c1, c2, c3);
+                                    p2_score = checkstraight(p20, p21, c1, c2, c3);
+                                    if(p1_score == 20 && p2_score == 20) begin
+                                        // Check 3 of a kind
+                                        p1_score = checkthreeofakind(p10, p11, c1, c2, c3);
+                                        p2_score = checkthreeofakind(p20, p21, c1, c2, c3);
+                                        if(p1_score == 20 && p2_score == 20) begin
+                                            // Check two pair
+                                            p1_score = checktwopair(p10, p11, c1, c2, c3);
+                                            p2_score = checktwopair(p20, p21, c1, c2, c3);
+                                            if(p1_score == 20 && p2_score == 20) begin
+                                                // Check two of a kind
+                                                p1_score = checktwoofakind(p10, p11, c1, c2, c3);
+                                                p2_score = checktwoofakind(p20, p21, c1, c2, c3);
+                                                if(p1_score == 20 && p2_score == 20) begin
+                                                    // High card
+                                                    p1_score = highcardnum(p10, p11, c1, c2, c3);
+                                                    p2_score = highcardnum(p20, p21, c1, c2, c3);
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
+                if(p1_score != 20 || p2_score != 20) begin
+                    if(p1_score == 20) winner = 2;
+                    else if(p2_score == 20) winner = 1;
+                    else if(p1_score > p2_score) winner = 1;
+                    else if(p1_score < p2_score) winner = 2;
+                    else
+                        begin
+                            if(p10 > p20 && p10 > p21)
+                                winner = 1;
+                            else if(p11 > p20 && p11 > p21)
+                                winner = 1;
+                            if(p20 > p10 && p20 > p11)
+                                winner = 2;
+                            else if(p21 > p10 && p21 > p11)
+                                winner = 2;
+                            else winner = 2; // Randomly assign if values are equal should not happen
+                    end
+
+                end
+                else
+                    winner = 1; // Randomly assign if values are equal
+
+               if(winner == 1) begin
+                   money_p1 = money_p1 + pot;
+                   _led[3:0] <= 4'b0001;
+               end
+               else begin
+                   money_p2 = money_p2 + pot;
+                   _led[3:0] <= 4'b0010;                  
+               end
+               
+            end
         endcase
        // $display("End of always block - rndStart = %d, Community: %d, %d, %d", rndStart, community[0], community[1], community[2]);
         rndStart = rndStart + 1;
