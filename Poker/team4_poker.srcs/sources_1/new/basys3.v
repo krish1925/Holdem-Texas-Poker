@@ -2,10 +2,8 @@ module basys3 (/*AUTOARG*/
    // Outputs
    RsTx, an, seg, led,
    // Inputs
-   RsRx, sw, btnS, btnR, btnL, clk, //btnD
+   RsRx, sw, btnS, btnR, btnL, clk
    );
-
-//`include "constants.v"
 
    wire [23:0] playerout;
 

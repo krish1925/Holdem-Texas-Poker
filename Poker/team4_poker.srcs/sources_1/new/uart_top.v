@@ -4,8 +4,6 @@ module uart_top (/*AUTOARG*/
    // Inputs
    i_rx, i_tx_data, i_tx_stb, clk, rst
    );
-
-//`include "constants.v"
    
    output                   o_tx; // asynchronous UART TX
    input                    i_rx; // asynchronous UART RX
@@ -54,9 +52,9 @@ module uart_top (/*AUTOARG*/
          stIdle:
            if (i_tx_stb)
              begin
-                    state   <= stNib1;
-                    tx_data <= i_tx_data;
-                    clear_screen_state <= 0;
+                state   <= stNib1;
+                tx_data <= i_tx_data;
+                clear_screen_state <= 0;
              end
          stSPC:
            if (~tfifo_full) state <= state + 1;
@@ -87,19 +85,9 @@ function [7:0] fnNib2ASCII;
             4'b0001: fnNib2ASCII = "D"; //Diamonds
             4'b0010: fnNib2ASCII = "C"; //Clubs
             4'b0011: fnNib2ASCII = "S"; //Spades
-           4'b0100: fnNib2ASCII = "a";
-            4'b0101: fnNib2ASCII = "P";
-            4'b0110: fnNib2ASCII = "c";
-            4'b0111: fnNib2ASCII = "d";
-            4'b1000: fnNib2ASCII = "e";
-           4'b1001: fnNib2ASCII = "f";
-            4'b1010: fnNib2ASCII = "g";
-            4'b1011: fnNib2ASCII = "h";
-            4'b1100: fnNib2ASCII = "i";
-            4'b1101: fnNib2ASCII = "j";
-            4'b1110: fnNib2ASCII = "k";
+            4'b1110: fnNib2ASCII = "P"; //Player
             4'b1111: fnNib2ASCII = " ";
-            default: fnNib2ASCII = "?";
+            default: fnNib2ASCII = "?"; //Invalid Value
          endcase // case (suit)
       end
    endfunction
@@ -122,9 +110,9 @@ function [7:0] fnNib2ASCII;
             4'b1010: fnCardValueToName = "Q"; //Queen
             4'b1011: fnCardValueToName = "K"; //King
             4'b1100: fnCardValueToName = "A"; //Ace
-            4'b1101: fnCardValueToName = "1";
+            4'b1110: fnCardValueToName = "1";
             4'b1111:fnCardValueToName = " ";
-            default: fnCardValueToName = "0"; //Invalid value
+            default: fnCardValueToName = "?"; //Invalid Value
          endcase
       end
    endfunction

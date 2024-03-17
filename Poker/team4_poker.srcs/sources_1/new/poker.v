@@ -7,7 +7,6 @@ module poker(
     _led,
     //Inputs
     clk,
-    rst,
     valid,
     busy, _sw,
     display_toggle
@@ -15,8 +14,7 @@ module poker(
     output [23:0] playerout;
     output reg [31:0] display_value = 0;
 
-    input        clk;
-    input rst;
+    input clk;
     input valid;
     input busy;
 
@@ -24,68 +22,51 @@ module poker(
 
     output reg [15:0] _led;
 
-
-
     input [15:0] _sw;
 
-
-    integer p1 [1:0];
-    integer p2 [1:0];
+    //Display Cards
     integer currp1;
     integer currp2;
     integer currp3;
-    integer player;
-    integer bet_player1 = 0;
-    integer bet_player2 = 0;
-    integer money_p1 = 100;
-    integer money_p2 = 100;
-    integer p1_total_bet;
-    integer p2_total_bet;
+    
+    integer player; //Tracks current player (0 = P1) (1 = P2) (-1 = Neither)
+    
+    integer initialize; //Sets whether cards should be reshuffled on new round
 
-    integer pot;
-    integer initialize;
+    integer winner; //Sets the current winner for the round
 
-
-    integer winner;
-    integer player;
-
+    //Player 1's Cards
     integer p11;
     integer p10;
+    //Player 2's Cards
     integer p21;
     integer p20;
+    //Community Cards
     integer c1;
     integer c2;
     integer c3;
 
-
-
-     // Winner determination logic
-      integer winner_value = 0;
-      integer p1_hand_value = 20;
-      integer p2_hand_value = 20;
-
-    integer community [4:0];
-    integer rndStart = 0;
+    integer rndStart = 0; //Tracks current round's state
     
-    integer seed;
-    
-    
-    //7-Segment Display Values
-    //modify these to change what appears on the 7-segment display
-    
-    integer p1_money = 1234; //Current money of player 1 
-    integer p2_money = 5678; //Current money of player 1 
-    
-    integer p1_bet = 0; //Current bet of player 1 
-    integer p2_bet = 0; //Current bet of player 2 
-    integer bet = 100; //Current bet that players must match
-    
+    //integer seed;
 
     integer display_state = 0; //Current state of 7-segment display
 
-
-    integer p1_score = 1234;
-    integer p2_score = 5678;
+    integer p1_score; //Score for player 1's hand
+    integer p2_score; //Score for player 2's hand    
+    
+    //Betting Values
+    
+    integer money_p1 = 100; //Current money of player 1
+    integer money_p2 = 100; //Current money of player 2
+    
+    integer p1_total_bet; //Current bet of player 1
+    integer p2_total_bet; //Current bet of player 2
+    
+    integer bet_player1 = 0; //Amount to be added to player 1's bet
+    integer bet_player2 = 0; //Amount to be added to player 2's bet
+    
+    integer pot; //Total pot for the round
 
 
 // function to check if there is a royal flush return 20 if not found
@@ -124,7 +105,6 @@ module poker(
         end
     endfunction
 
-
 //    //function to check if there is a straight flush
     function integer checkstraightflush;
         input integer playercard1;
@@ -150,7 +130,6 @@ module poker(
             end
         end
     endfunction
-
 
 //    // Function to check if there is a 4 of a kind 20 if not found, returns value of 4 of a kind
     function integer check4ofakind;
@@ -196,8 +175,6 @@ module poker(
         end
     endfunction
 
-
-
 //    // Function to check if there is a full house, returns the low 2 cards value else 20
     function integer checkfullhouse;
         input integer playercard1;
@@ -242,8 +219,6 @@ module poker(
 
         end
     endfunction
-
-
 
    //function to check for a flush
     function integer checkflush;
@@ -312,8 +287,6 @@ module poker(
         end
     endfunction
 
-
-
 //    // Function to check if there is a three of a kind, return card value if found, else 20
     function integer checkthreeofakind;
         input integer playercard1;
@@ -360,7 +333,6 @@ module poker(
 
         end
     endfunction
-
 
 //        // Function to check if there is a two pair returns highest value of that pair, else 20
   function integer checktwopair;
@@ -413,7 +385,6 @@ module poker(
         end
     endfunction
 
-
     //Function to check if there is a two of a kind. 20 if not found
     function integer checktwoofakind;
         input integer playercard1;
@@ -456,8 +427,6 @@ module poker(
         end
     endfunction
 
-
-
    function integer highcardnum;
     input integer playercard1;
     input integer playercard2;
@@ -491,7 +460,7 @@ module poker(
     end
 endfunction
 
-
+//Convert integer representing card into bits for UART display
     function [7:0] cardConvert;
         input integer card;
         integer value, suit;
@@ -499,9 +468,9 @@ endfunction
         if (card == -1)
             cardConvert = 8'b11111111;
         else if (card == -2)
-            cardConvert = 8'b11010101;
+            cardConvert = 8'b11101110;
         else if (card == -3)
-            cardConvert = 8'b00000101;
+            cardConvert = 8'b00001110;
         else begin
             value = card % 13;
             suit = card / 13;
@@ -510,7 +479,8 @@ endfunction
             
         end
     endfunction
-    
+
+//Produces a psuedo-random number between 0-51
     integer s = 0;
     function integer rand;
         input integer max;
@@ -522,31 +492,37 @@ endfunction
         rand = s % max;
     end
     endfunction
-    
+
+//Produces a random card from the deck with no repeats
     reg [51:0] card_array = 0;
     function integer randcard;
         input integer _x;
         integer card;
+        reg [5:0] card_check;
     begin        
         card = rand(52);
-//BELOW CODE INCREASES IMPLEMENTATION TIME, LEAVE COMMENTED FOR NOW
+
+        card_check = {card_array[(card + 1) % 52],
+                      card_array[(card + 2) % 52],
+                      card_array[(card + 3) % 52],
+                      card_array[(card + 4) % 52],
+                      card_array[(card + 5) % 52]};
+        
         if (card_array[card]) begin
-            if (!card_array[(card + 1) % 52])
-                card = (card + 1) % 52;
-            else if (!card_array[(card + 2) % 52])
-                card = (card + 2) % 52;
-            else
-                card = (card + 3) % 52;
-//            else if (!card_array[(card + 3) % 52])
-//                card = (card + 3) % 52;
-//            else if (!card_array[(card + 4) % 52])
-//                 card = (card + 4) % 52;
-//            else if (!card_array[(card + 5) % 52])
-//                 card = (card + 5) % 52;
-//            else
-//                card = (card + 6) % 52;
+          if (!card_check[0])
+              card = (card + 1) % 52;
+          else if (!card_check[1])
+              card = (card + 2) % 52;            
+          else if (!card_check[2])
+              card = (card + 3) % 52;
+          else if (!card_check[3])
+               card = (card + 4) % 52;
+          else if (!card_check[4])
+               card = (card + 5) % 52;
+          else
+              card = (card + 6) % 52;
         end
-            
+        
         card_array[card] = 1;
         randcard = card;
     end
@@ -554,7 +530,6 @@ endfunction
 
     initial begin
         card_array = 0;
-        seed = 12345;
         player = 1;
         initialize = 0;
         rndStart = 0;
@@ -563,18 +538,7 @@ endfunction
         pot = 0;
     end
 
-    always @ (posedge valid | rst) begin
-            if (rst) begin //Reset Block
-                rndStart = -1;
-                card_array = 0;
-                pot = 0;
-                p1_total_bet = 0;
-                p2_total_bet = 0;
-                p1_score = 20;
-                p2_score = 20;
-                money_p1 = 100;
-                money_p2 = 100;
-            end
+    always @ (posedge valid) begin
         if (rndStart == 10) begin
                     rndStart = 0;
                     pot = 0;
@@ -584,7 +548,6 @@ endfunction
                     winner = -1;
                     initialize = 0;
                     _led[3:0] <= 4'b0000;
-
         end
 
         if(rndStart == 0 && initialize == 0) begin
@@ -809,38 +772,37 @@ endfunction
             end
         endcase
         rndStart = rndStart + 1;
-       end
+    end
        
-       assign playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
+    assign playerout = {cardConvert(currp1), cardConvert(currp2), cardConvert(currp3)};
         
-        always @ (posedge display_toggle | valid | rst) begin
-            if (rst | valid)
-                display_state <= 0;
-            else
-                display_state <= (display_state + 1) % 4;
-        end
+    always @ (posedge display_toggle | valid) begin
+        if (valid)
+            display_state <= 0;
+        else
+            display_state <= (display_state + 1) % 4;
+    end
         
-
-       integer temp = 0;
-       always @* begin
-           if (player == 0) begin
-              bet_player1 = _sw[15:0];
-              temp = p1_total_bet + bet_player1[14:0];
-           end else if (player == 1) begin
-              bet_player2 = _sw[15:0];
-              temp = p2_total_bet + bet_player2[14:0];
-           end
-           case (display_state)
-               0: begin 
-                if (player != -1)
-                    display_value = player == 0 ? money_p1 : money_p2;
-                else
-                    display_value = 0;
-               end
-               1: display_value = player == 0 ? temp: p1_total_bet;
-               2: display_value = player == 1 ? temp: p2_total_bet;
-               3: display_value = pot;
-           endcase
+   integer temp = 0;
+   always @* begin
+       if (player == 0) begin
+          bet_player1 = _sw[15:0];
+          temp = p1_total_bet + bet_player1[14:0];
+       end else if (player == 1) begin
+          bet_player2 = _sw[15:0];
+          temp = p2_total_bet + bet_player2[14:0];
        end
+       case (display_state)
+           0: begin 
+            if (player != -1)
+                display_value = player == 0 ? money_p1 : money_p2;
+            else
+                display_value = 0;
+           end
+           1: display_value = player == 0 ? temp: p1_total_bet;
+           2: display_value = player == 1 ? temp: p2_total_bet;
+           3: display_value = pot;
+       endcase
+   end
        
 endmodule
