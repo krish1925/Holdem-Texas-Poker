@@ -129,7 +129,7 @@ function [7:0] fnNib2ASCII;
             4'b0010: fnNib2ASCII = "C"; //Clubs
             4'b0011: fnNib2ASCII = "S"; //Spades
            4'b0100: fnNib2ASCII = "a"; //Hearts
-            4'b0101: fnNib2ASCII = "b"; //Diamonds
+            4'b0101: fnNib2ASCII = "P"; //Diamonds
             4'b0110: fnNib2ASCII = "c"; //Clubs
             4'b0111: fnNib2ASCII = "d";
             4'b1000: fnNib2ASCII = "e"; //Hearts
@@ -163,6 +163,7 @@ function [7:0] fnNib2ASCII;
             4'b1010: fnCardValueToName = "Q";//8'b00100011; // "Q" (Queen)
             4'b1011: fnCardValueToName = "K";// 8'b01001011; // "K" (King)
             4'b1100: fnCardValueToName = "A";//8'b01000001; // "A" (Ace)
+            4'b1101: fnCardValueToName = "1";//8'b01000001; // "A" (Ace)
             4'b1111:fnCardValueToName = " ";
             default: fnCardValueToName = "0";//8'b00110000; // "0" (Invalid value)
          endcase

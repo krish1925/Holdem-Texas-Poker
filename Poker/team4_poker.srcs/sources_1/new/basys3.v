@@ -2,13 +2,13 @@ module basys3 (/*AUTOARG*/
    // Outputs
    RsTx, an, seg, led,
    // Inputs
-   RsRx, sw, btnS, btnR, clk//, led//btnD
+   RsRx, sw, btnS, btnR, clk, //btnD//, led//btnD
    );
 
 `include "constants.v"
-   
+
    wire [23:0] playerout;
-   
+
    // USB-UART
    input        RsRx;
    output       RsTx;
@@ -16,18 +16,19 @@ module basys3 (/*AUTOARG*/
    //output reg [6:0] seg;
 
    // Misc.
-   input  [7:0] sw;
+   input  [15:0] sw;
    output [15:0] led;
    //output [7:0] led;
    input        btnS;                 // single-step instruction
    input        btnR;                 // arst
-  
-  
+
+
+
   // input       btnD;                 // input for bet  //new
-   
+
    // Logic
    input        clk;                  // 100MHz
-   
+
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
    wire [seq_width-1:0] seq_tx_data;         // From seq_ of seq.v
@@ -36,15 +37,18 @@ module basys3 (/*AUTOARG*/
    wire                 uart_rx_valid;          // From uart_top_ of uart_top.v
    wire                 uart_tx_busy;           // From uart_top_ of uart_top.v
    // End of automatics
-   
+
    wire        rst;
    wire        arst_i;
    wire [17:0] clk_dv_inc;
    wire [31:0] display_value;
 
 
+
+
+
 //   wire validation;  //new
-//   wire  arst_ii; //new 
+//   wire  arst_ii; //new
 //   reg [1:0] arst_foo; //new
 
 
@@ -53,23 +57,27 @@ module basys3 (/*AUTOARG*/
    reg [16:0]  clk_dv;
    reg         clk_en;
    reg         clk_en_d;
-      
+
    reg [7:0]   inst_wd;
    reg         inst_vld;
    reg [2:0]   step_d;
 
    reg [7:0]   inst_cnt;
-   
+
    reg [1:0] inst_vld_d;
+
+
+
+
    //reg btn;
-   
+
    // ===========================================================================
    // Asynchronous Reset
    // ===========================================================================
 
    assign arst_i = btnR;
    assign rst = arst_ff[0];
-   
+
    always @ (posedge clk or posedge arst_i)
      if (arst_i)
        arst_ff <= 2'b11;
@@ -81,9 +89,9 @@ module basys3 (/*AUTOARG*/
    // Asynchronous Bet Amount Signal validation
    // ===========================================================================
 
-//   assign arst_ii = btnD;  //new 
+//   assign arst_ii = btnD;  //new
 //   assign validation = arst_foo[0]; //new
-   
+
 //   always @ (posedge clk or posedge arst_i) //new
 //     if (arst_ii) //new
 //       arst_foo <= 2'b11; //new
@@ -95,7 +103,7 @@ module basys3 (/*AUTOARG*/
    // ===========================================================================
 
    assign clk_dv_inc = clk_dv + 1;
-   
+
    always @ (posedge clk)
      if (rst)
        begin
@@ -109,7 +117,7 @@ module basys3 (/*AUTOARG*/
           clk_en   <= clk_dv_inc[17];
           clk_en_d <= clk_en;
        end
-   
+
    // ===========================================================================
    // Instruction Stepping Control
    // ===========================================================================
@@ -134,7 +142,7 @@ module basys3 (/*AUTOARG*/
      inst_vld_d[1] = inst_vld_d[0];
      inst_vld_d[0] <= inst_vld;
    end
-   
+
    always @ (posedge clk)
      if (rst)
        inst_cnt <= 0;
@@ -145,8 +153,8 @@ module basys3 (/*AUTOARG*/
     //    btn <= 0;
 
    //assign led[7:0] = inst_cnt[7:0];
-   
-   
+
+
 //always @ (posedge step_d[0]) begin
 //     btn <= 1;
 //   end
@@ -165,7 +173,7 @@ module basys3 (/*AUTOARG*/
 //             // Inputs
 //             .clk                       (clk),
 //             .rst                       (rst));
-   
+
    // ===========================================================================
    // UART controller
    // ===========================================================================
@@ -179,7 +187,8 @@ module basys3 (/*AUTOARG*/
    .valid (inst_vld_d[0]),
    //bet_valid (validation), //new
    .busy (uart_tx_busy),
-   ._led (led)
+   ._led (led),
+   ._sw (sw)
    );
    
    uart_top uart_top_ (// Outputs
